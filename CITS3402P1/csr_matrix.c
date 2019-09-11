@@ -2,18 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include "matrix.h"
-
-struct csr_matrix
-{
-  int n_non_zeros;
-  struct matrix* matrix;
-};
+#include "csr_matrix.h"
 
 inline int csr_cnz_index(struct csr_matrix* csr_matrix, int i) {
   return i;
 }
 
-inline int csr_col_index(struct csr_matrix* csr_matrix, int i) {
+inline int csr_row_index(struct csr_matrix* csr_matrix, int i) {
   return (csr_matrix->matrix->height + 1) + i;
 }
 
@@ -65,7 +60,7 @@ struct csr_matrix* csr_matrix_constructor(int width, int height, int* values)
         continue;
       }
       seen_non_zeros++;
-      data[csr_col_index(csr_matrix, next_value_i)] = col;
+      data[csr_row_index(csr_matrix, next_value_i)] = col;
       data[csr_val_index(csr_matrix, next_value_i)] = value;
       next_value_i++;
     }
@@ -88,7 +83,7 @@ int* csr_matrix_get_row(int row, struct csr_matrix* csr_matrix)
 
   int* row_values = (int*)calloc(csr_matrix->matrix->width, sizeof(int));
   for (int x = n_non_zeros_before_row; x < n_non_zeros_before_next_row; x++) {
-    int column_index = data[csr_col_index(csr_matrix, x)];
+    int column_index = data[csr_row_index(csr_matrix, x)];
     int value = data[csr_val_index(csr_matrix, x)];
     row_values[column_index] = value;
   }

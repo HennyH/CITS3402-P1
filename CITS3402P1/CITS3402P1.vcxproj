@@ -155,12 +155,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CITS3402P1.cpp" />
+    <ClCompile Include="csc_matrix.c" />
     <ClCompile Include="csr_matrix.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="csc_matrix.h" />
     <ClInclude Include="csr_matrix.h" />
     <ClInclude Include="matrix.h" />
   </ItemGroup>

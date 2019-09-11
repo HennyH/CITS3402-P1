@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "matrix.h"
-#include "csr_matrix.h"
+#include "csc_matrix.h"
 
 int main()
 {
@@ -15,9 +15,9 @@ int main()
                   0,0,2,1,0,0,1,
                   0,0,0,0,0,0,0,
                   0,0,0,1,0,3,0 };
-  matrix_constructor cns = &csr_matrix_constructor;
-  struct csr_matrix* m = (struct csr_matrix*)cns(w, h, values);
-  int* row4 = csr_matrix_get_row(4, m);
+  matrix_constructor cns = &csc_matrix_constructor;
+  struct csc_matrix* m = (struct csc_matrix*)cns(w, h, values);
+  int* col3 = csc_matrix_get_col(3, m);
 
   printf("Hello world");
 }
