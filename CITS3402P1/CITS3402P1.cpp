@@ -7,9 +7,33 @@
 #include "matrix.h"
 #include "csc_matrix.h"
 
+///<summary>Constructs a new matrix which is the result of a scalar multiplication</summary>
+///<param name="a">The multiple by which to multiply <paramref name="matrix"/></param>
+void* matrix_scalar_multiply(int a, void* matrix, int width, int height, matrix_get_col get_col, matrix_constructor constructor)
+{
+  int* result_values = (int*)malloc(sizeof(int) * width * height);
+
+  for (int col_i = 0; col_i < width; col_i++)
+  {
+    int* column;
+#pragma omp parallel shared(column, width, height)
+    {
+#pragma omp single
+      column = get_col(col_i + 1, matrix);
+      int row_i = 0;
+#pragma omp for
+      for (row_i = 0; row_i < height; row_i++) {
+        result_values[col_i * width + row_i] = a * column[row_i];
+      }
+    }
+  }
+
+  return constructor(width, height, result_values);
+}
+
 int main()
 {
-  int h = 4;
+  /*int h = 4;
   int w = 7;
   int values[] = { 0,1,0,0,0,0,0,
                   0,0,2,1,0,0,1,
@@ -17,8 +41,11 @@ int main()
                   0,0,0,1,0,3,0 };
   matrix_constructor cns = &csc_matrix_constructor;
   struct csc_matrix* m = (struct csc_matrix*)cns(w, h, values);
-  int* col3 = csc_matrix_get_col(3, m);
+  int* col3 = csc_matrix_get_col(3, m);*/
 
+  int i[] = { 1,1,1,1 };
+  struct csc_matrix* i2 = (struct csc_matrix*)csc_matrix_constructor(2, 2, i);
+  struct csc_matrix* r = (struct csc_matrix*)matrix_scalar_multiply(5, i2, 2, 2, &csc_matrix_get_col, &csc_matrix_constructor);
   printf("Hello world");
 }
 
