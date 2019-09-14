@@ -23,9 +23,9 @@ struct csr_matrix* csr_matrix_constructor(int width, int height, int* values)
   m->height = height;
 
   int n_non_zeros = 0;
-  for (int row = 0; row < height; row++) {
-    for (int col = 0; col < width; col++) {
-      int i = col + row * width;
+  for (int row_i = 0; row_i < height; row_i++) {
+    for (int col_i = 0; col_i < width; col_i++) {
+      int i = col_i + row_i * width;
       int value = values[i];
       if (value == 0) {
         continue;
@@ -52,15 +52,15 @@ struct csr_matrix* csr_matrix_constructor(int width, int height, int* values)
 
   int seen_non_zeros = 0;
   int next_value_i = 0;
-  for (int row = 0; row < height; row++) {
-    for (int col = 0; col < width; col++) {
-      int i = col + row * width;
+  for (int row_i = 0; row_i < height; row_i++) {
+    for (int col_i = 0; col_i < width; col_i++) {
+      int i = col_i + row_i * width;
       int value = values[i];
       if (value == 0) {
         continue;
       }
       seen_non_zeros++;
-      data[csr_row_index(csr_matrix, next_value_i)] = col;
+      data[csr_row_index(csr_matrix, next_value_i)] = col_i;
       data[csr_val_index(csr_matrix, next_value_i)] = value;
       next_value_i++;
     }
@@ -68,18 +68,18 @@ struct csr_matrix* csr_matrix_constructor(int width, int height, int* values)
      * we explicitly added in above! And on the first iteration of
      * the loop the `row` is 0!
      */
-    data[csr_cnz_index(csr_matrix, row + 1)] = seen_non_zeros;
+    data[csr_cnz_index(csr_matrix, row_i + 1)] = seen_non_zeros;
   }
 
 
   return csr_matrix;
 }
 
-int* csr_matrix_get_row(int row, struct csr_matrix* csr_matrix)
+int* csr_matrix_get_row(int row_i, struct csr_matrix* csr_matrix)
 {
   int* data = csr_matrix->matrix->data;
-  int n_non_zeros_before_row = data[csr_cnz_index(csr_matrix, row - 1)];
-  int n_non_zeros_before_next_row = data[csr_cnz_index(csr_matrix, row)];
+  int n_non_zeros_before_row = data[csr_cnz_index(csr_matrix, row_i)];
+  int n_non_zeros_before_next_row = data[csr_cnz_index(csr_matrix, row_i + 1)];
 
   int* row_values = (int*)calloc(csr_matrix->matrix->width, sizeof(int));
   for (int x = n_non_zeros_before_row; x < n_non_zeros_before_next_row; x++) {

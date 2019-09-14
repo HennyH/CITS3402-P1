@@ -2,3 +2,5 @@
 **/Debug
 **/obj
 **/*.vcxproj.user
+**/Release
+**/x64

@@ -15,13 +15,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CITS3402P1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="csr_matrix.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="csc_matrix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="coo_matrix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CITS3402P1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="matrix_operations.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,14 +35,20 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="matrix.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="csr_matrix.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="coo_matrix.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="csc_matrix.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="csr_matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="matrix_operations.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -23,9 +23,9 @@ struct csc_matrix* csc_matrix_constructor(int width, int height, int* values)
   m->height = height;
 
   int n_non_zeros = 0;
-  for (int row = 0; row < height; row++) {
-    for (int col = 0; col < width; col++) {
-      int i = col + row * width;
+  for (int row_i = 0; row_i < height; row_i++) {
+    for (int col_i = 0; col_i < width; col_i++) {
+      int i = col_i + row_i * width;
       int value = values[i];
       if (value == 0) {
         continue;
@@ -52,34 +52,38 @@ struct csc_matrix* csc_matrix_constructor(int width, int height, int* values)
 
   int seen_non_zeros = 0;
   int next_value_i = 0;
-  for (int col = 0; col < width; col++) {
-    for (int row = 0; row < height; row++) {
-      int i = col + row * width;
+  for (int col_i = 0; col_i < width; col_i++) {
+    for (int row_i = 0; row_i < height; row_i++) {
+      int i = col_i + row_i * width;
       int value = values[i];
       if (value == 0) {
         continue;
       }
       seen_non_zeros++;
-      data[csc_col_index(csc_matrix, next_value_i)] = row;
+      data[csc_col_index(csc_matrix, next_value_i)] = row_i;
       data[csc_val_index(csc_matrix, next_value_i)] = value;
       next_value_i++;
     }
     /* We have a `+1` here because we don't want to override the 0
-     * we explicitly added in above! And on the first iteration of
-     * the loop the `col` is 0!
+     * we explicitly added in above before the loop! And on the
+     * first iteration of the loop the `col` is 0!
      */
-    data[csc_cnz_index(csc_matrix, col + 1)] = seen_non_zeros;
+    data[csc_cnz_index(csc_matrix, col_i + 1)] = seen_non_zeros;
   }
-
 
   return csc_matrix;
 }
 
-int* csc_matrix_get_col(int col, struct csc_matrix* csc_matrix)
+int* csc_matrix_get_col(int col_i, struct csc_matrix* csc_matrix)
 {
+  if (col_i < 0) {
+    printf("Expected column to be greater than equal to 1.");
+    exit(1);
+  }
+
   int* data = csc_matrix->matrix->data;
-  int n_non_zeros_before_col = data[csc_cnz_index(csc_matrix, col - 1)];
-  int n_non_zeros_before_next_col = data[csc_cnz_index(csc_matrix, col)];
+  int n_non_zeros_before_col = data[csc_cnz_index(csc_matrix, col_i)];
+  int n_non_zeros_before_next_col = data[csc_cnz_index(csc_matrix, col_i + 1)];
 
   int* col_values = (int*)calloc(csc_matrix->matrix->height, sizeof(int));
   for (int x = n_non_zeros_before_col; x < n_non_zeros_before_next_col; x++) {
