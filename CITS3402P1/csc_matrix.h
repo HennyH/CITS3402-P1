@@ -4,10 +4,15 @@
 
 struct csc_matrix
 {
+  char data_type;
+  int width;
+  int height;
   int n_non_zeros;
-  struct matrix* matrix;
+  int* cnzs;
+  int* rows;
+  union matrix_value* vals;
 };
 
-struct csc_matrix* csc_matrix_constructor(int width, int height, int* values);
+struct csc_matrix* csc_matrix_constructor(char data_type, int width, int height, void* values);
 
-int* csc_matrix_get_col(int col, struct csc_matrix* csc_matrix);
+union matrix_value* csc_matrix_get_col(int col, struct csc_matrix* csc_matrix);

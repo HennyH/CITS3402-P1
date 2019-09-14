@@ -7,13 +7,13 @@
 
 ///<summary>Constructs a new matrix which is the result of a scalar multiplication</summary>
 ///<param name="a">The multiple by which to multiply <paramref name="matrix"/></param>
-void* matrix_scalar_multiply(int a, void* matrix, int width, int height, matrix_get_col get_col, matrix_constructor constructor)
+void* matrix_scalar_multiply(char data_type, float a, void* matrix, int width, int height, matrix_get_col get_col, matrix_constructor constructor)
 {
-  int* result_values = (int*)malloc(sizeof(int) * width * height);
+  union matrix_value* result_values = (int*)malloc(sizeof(union matrix_value) * width * height);
 
   for (int col_i = 0; col_i < width; col_i++)
   {
-    int* column;
+    union matrix_value* column;
 #pragma omp parallel shared(column, width, height, result_values)
     {
 #pragma omp single
@@ -21,37 +21,46 @@ void* matrix_scalar_multiply(int a, void* matrix, int width, int height, matrix_
       int row_i = 0;
 #pragma omp for
       for (row_i = 0; row_i < height; row_i++) {
-        result_values[col_i * width + row_i] = a * column[row_i];
+        set_zero_matrix_value(DATA_TYPE_FLOAT, &result_values[col_i * height + row_i]);
+        result_values[col_i * width + row_i].f = a * (data_type == DATA_TYPE_INTEGER ? column[row_i].i : column[row_i].f);
       }
     }
   }
 
-  void* result_matrix = constructor(width, height, result_values);
+  void* result_matrix = constructor('f', width, height, result_values);
   free(result_values);
   return result_matrix;
 }
 
-int matrix_trace(struct coo_matrix* coo_matrix)
+union matrix_value matrix_trace(char data_type, struct coo_matrix* coo_matrix)
 {
   int i;
-  int trace = 0;
+  union matrix_value trace;
+  set_zero_matrix_value(data_type, &trace);
   int n_values = coo_matrix->n_triples;
 #pragma omp parallel for shared(coo_matrix) reduction(+: trace)
   for (i = 0; i < n_values; i++) {
     if (coo_matrix->triples[i].row_i == coo_matrix->triples[i].col_i) {
-      trace += coo_matrix->triples[i].value;
+      if (data_type == DATA_TYPE_INTEGER) {
+        trace.i += coo_matrix->triples[i].value.i;
+      }
+      else {
+        trace.f += coo_matrix->triples[i].value.f;
+      }
     }
   }
   return trace;
 }
 
-void* matrix_add(int width, int height, void* left_matrix, void* right_matrix, matrix_get_col get_col, matrix_constructor constructor)
+void* matrix_add(char left_data_type, char right_data_type, int width, int height, void* left_matrix, void* right_matrix, matrix_get_col get_col, matrix_constructor constructor)
 {
-  int* result_values = (int*)malloc(sizeof(int) * width * height);
+  union matrix_value* result_values = (union matrix_value*)malloc(sizeof(union matrix_value) * width * height);
+  const char result_data_type = left_data_type == DATA_TYPE_FLOAT || right_data_type == DATA_TYPE_FLOAT ? DATA_TYPE_FLOAT : DATA_TYPE_INTEGER;
+
   for (int col_i = 0; col_i < width; col_i++)
   {
-    int* left_column;
-    int* right_column;
+    union matrix_value* left_column;
+    union matrix_value* right_column;
 #pragma omp parallel shared(left_column, right_column, result_values)
     {
 #pragma omp single
@@ -62,21 +71,38 @@ void* matrix_add(int width, int height, void* left_matrix, void* right_matrix, m
       int row_i = 0;
 #pragma omp for
       for (row_i = 0; row_i < height; row_i++) {
-        result_values[col_i * height + row_i] = left_column[row_i] + right_column[row_i];
+        set_zero_matrix_value(result_data_type, &result_values[col_i * height + row_i]);
+        if (result_data_type == DATA_TYPE_FLOAT) {
+          result_values[col_i * height + row_i].f =
+            (right_data_type == DATA_TYPE_FLOAT ? left_column[row_i].f : left_column[row_i].i) *
+            (left_data_type == DATA_TYPE_FLOAT ? right_column[row_i].f : right_column[row_i].i);
+        }
+        else {
+          result_values[col_i * height + row_i].i =
+            (right_data_type == DATA_TYPE_FLOAT ? left_column[row_i].f : left_column[row_i].i) *
+            (left_data_type == DATA_TYPE_FLOAT ? right_column[row_i].f : right_column[row_i].i);
+        }
       }
     }
   }
 
-  void* result_matrix = constructor(width, height, result_values);
+  void* result_matrix = constructor(
+    left_data_type == DATA_TYPE_FLOAT || right_data_type == DATA_TYPE_FLOAT ? DATA_TYPE_FLOAT : DATA_TYPE_INTEGER,
+    width,
+    height,
+    result_values
+  );
   free(result_values);
   return result_matrix;
 }
 
 void* matrix_multiply(
+  char left_data_type,
   int left_matrix_width,
   int left_matrix_height,
   void* left_matrix,
   matrix_get_row get_left_matrix_row,
+  char right_data_type,
   int right_matrix_width,
   int right_matrix_height,
   void* right_matrix,
@@ -85,24 +111,46 @@ void* matrix_multiply(
 ) {
   const int result_matrix_width = right_matrix_width;
   const int result_matrix_height = left_matrix_height;
-  int* result_values = (int*)malloc(sizeof(int) * result_matrix_width * result_matrix_height);
-  int* left_matrix_row;
+  const char result_data_type = left_data_type == DATA_TYPE_FLOAT || right_data_type == DATA_TYPE_FLOAT ? DATA_TYPE_FLOAT : DATA_TYPE_INTEGER;
+  union matrix_value* result_values = (int*)malloc(sizeof(union matrix_value) * result_matrix_width * result_matrix_height);
+  union matrix_value* left_matrix_row;
 
   for (int right_matrix_col_i = 0; right_matrix_col_i < right_matrix_width; right_matrix_col_i++) {
-    int* right_matrix_column = get_right_matrix_col(right_matrix_col_i, right_matrix);
+    union matrix_value* right_matrix_column = get_right_matrix_col(right_matrix_col_i, right_matrix);
     int left_matrix_row_i;
 #pragma omp parallel for shared(right_matrix_column, result_values) private(left_matrix_row)
     for (left_matrix_row_i = 0; left_matrix_row_i < left_matrix_height; left_matrix_row_i++) {
       left_matrix_row = get_left_matrix_row(left_matrix_row_i, left_matrix);
-      int col_row_product_sum = 0;
+      union matrix_value col_row_product_sum;
+      set_zero_matrix_value(result_data_type, &col_row_product_sum);
       for (int i = 0; i < right_matrix_height; i++) {
-        col_row_product_sum += right_matrix_column[i] * left_matrix_row[i];
+        if (result_data_type == DATA_TYPE_FLOAT) {
+          col_row_product_sum.f +=
+            (right_data_type == DATA_TYPE_FLOAT ? right_matrix_column[i].f : right_matrix_column[i].i) *
+            (left_data_type == DATA_TYPE_FLOAT ? left_matrix_row[i].f : left_matrix_row[i].i);
+        }
+        else {
+          col_row_product_sum.i +=
+            (right_data_type == DATA_TYPE_FLOAT ? right_matrix_column[i].f : right_matrix_column[i].i) *
+            (left_data_type == DATA_TYPE_FLOAT ? left_matrix_row[i].f : left_matrix_row[i].i);
+        }
       }
-      result_values[right_matrix_col_i * result_matrix_width + left_matrix_row_i] = col_row_product_sum;
+
+      if (result_data_type == DATA_TYPE_FLOAT) {
+        result_values[right_matrix_col_i * result_matrix_width + left_matrix_row_i].i = col_row_product_sum.i;
+      }
+      else {
+        result_values[right_matrix_col_i * result_matrix_width + left_matrix_row_i].f = col_row_product_sum.f;
+      }
     }
   }
 
-  void* result_matrix = constructor(result_matrix_width, result_matrix_height, result_values);
+  void* result_matrix = constructor(
+    result_data_type,
+    result_matrix_width,
+    result_matrix_height,
+    result_values
+  );
   free(result_values);
   return result_matrix;
 }

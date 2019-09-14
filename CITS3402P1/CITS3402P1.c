@@ -36,11 +36,11 @@ int main()
     1,
     2
   };
-  struct csr_matrix* lm = csr_matrix_constructor(2, 3, a);
-  struct csc_matrix* rm = csc_matrix_constructor(1, 2, b);
+  struct csr_matrix* lm = csr_matrix_constructor('i', 2, 3, a);
+  struct csc_matrix* rm = csc_matrix_constructor('i', 1, 2, b);
   struct coo_matrix* r = matrix_multiply(
-    2, 3, lm, &csr_matrix_get_row,
-    1, 2, rm, &csc_matrix_get_col,
+    'i', 2, 3, lm, &csr_matrix_get_row,
+    'i', 1, 2, rm, &csc_matrix_get_col,
     &coo_matrix_constructor
   );
   struct coo_triple* triples = r->triples;

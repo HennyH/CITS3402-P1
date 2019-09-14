@@ -4,10 +4,16 @@
 
 struct csr_matrix
 {
+  char data_type;
+  int width;
+  int height;
   int n_non_zeros;
-  struct matrix* matrix;
+  int* cnzs;
+  int* cols;
+  union matrix_value* vals;
 };
 
-struct csr_matrix* csr_matrix_constructor(int width, int height, int* values);
+struct csr_matrix* csr_matrix_constructor(char data_type, int width, int height, void* values);
 
-int* csr_matrix_get_row(int row, struct csr_matrix* csr_matrix);
+union matrix_value* csr_matrix_get_row(int row_i, struct csr_matrix* csr_matrix);
+

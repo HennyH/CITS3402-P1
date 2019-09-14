@@ -4,88 +4,77 @@
 #include "matrix.h"
 #include "csr_matrix.h"
 
-inline int csr_cnz_index(struct csr_matrix* csr_matrix, int i) {
-  return i;
-}
-
-inline int csr_row_index(struct csr_matrix* csr_matrix, int i) {
-  return (csr_matrix->matrix->height + 1) + i;
-}
-
-inline int csr_val_index(struct csr_matrix* csr_matrix, int i) {
-  return (csr_matrix->matrix->height + 1) + (csr_matrix->n_non_zeros) + i;
-}
-
-struct csr_matrix* csr_matrix_constructor(int width, int height, int* values)
+struct csr_matrix* csr_matrix_constructor(char data_type, int width, int height, void* values)
 {
-  struct matrix* m = (struct matrix*)malloc(sizeof(struct matrix));
+  int n_non_zeros = count_non_zero_values(data_type, width, height, values);
+
+  int cnzs_len = height + 1;
+  int cols_len = n_non_zeros;
+  int vals_len = n_non_zeros;
+
+  struct csr_matrix* m = (struct csr_matrix*)malloc(sizeof(struct csr_matrix));
+  m->n_non_zeros = n_non_zeros;
   m->width = width;
   m->height = height;
+  m->data_type = data_type;
+  m->cnzs = (int*)malloc(sizeof(int) * cnzs_len);
+  m->cols = (int*)malloc(sizeof(int) * cols_len);
+  m->vals = (union matrix_value*)malloc(sizeof(union matrix_value) * vals_len);
 
-  int n_non_zeros = 0;
-  for (int row_i = 0; row_i < height; row_i++) {
-    for (int col_i = 0; col_i < width; col_i++) {
-      int i = col_i + row_i * width;
-      int value = values[i];
-      if (value == 0) {
-        continue;
-      }
-      n_non_zeros++;
-    }
-  }
-
-  int cnz_len = height + 1;
-  int col_len = n_non_zeros;
-  int val_len = n_non_zeros;
-  int data_len = cnz_len + col_len + val_len;
-  int* data = (int*)malloc(sizeof(int) * data_len);
-  m->data = data;
-
-  struct csr_matrix* csr_matrix = (struct csr_matrix*)malloc(sizeof(struct csr_matrix));
-  csr_matrix->n_non_zeros = n_non_zeros;
-  csr_matrix->matrix = m;
-
-  /* We prepend a 0 into the non-zeros by row to avoid erros
-   * trying to retrieve row 1.
+  /* We prepend a 0 into the non-zeros by column to avoid erros
+   * trying to retrieve col 1.
    */
-  data[csr_cnz_index(csr_matrix, 0)] = 0;
+  m->cnzs[0] = 0;
 
   int seen_non_zeros = 0;
   int next_value_i = 0;
   for (int row_i = 0; row_i < height; row_i++) {
     for (int col_i = 0; col_i < width; col_i++) {
       int i = col_i + row_i * width;
-      int value = values[i];
-      if (value == 0) {
+      if (is_zero_value(data_type, i, values)) {
         continue;
       }
+      if (data_type == DATA_TYPE_INTEGER) {
+        m->vals[next_value_i].i = ((int*)values)[i];
+      }
+      else {
+        m->vals[next_value_i].f = ((float*)values)[i];;
+      }
+
+      m->cols[next_value_i] = col_i;
       seen_non_zeros++;
-      data[csr_row_index(csr_matrix, next_value_i)] = col_i;
-      data[csr_val_index(csr_matrix, next_value_i)] = value;
       next_value_i++;
     }
     /* We have a `+1` here because we don't want to override the 0
      * we explicitly added in above! And on the first iteration of
      * the loop the `row` is 0!
      */
-    data[csr_cnz_index(csr_matrix, row_i + 1)] = seen_non_zeros;
+    m->cnzs[row_i + 1] = seen_non_zeros;
   }
 
 
-  return csr_matrix;
+  return m;
 }
 
-int* csr_matrix_get_row(int row_i, struct csr_matrix* csr_matrix)
+union matrix_value* csr_matrix_get_row(int row_i, struct csr_matrix* csr_matrix)
 {
-  int* data = csr_matrix->matrix->data;
-  int n_non_zeros_before_row = data[csr_cnz_index(csr_matrix, row_i)];
-  int n_non_zeros_before_next_row = data[csr_cnz_index(csr_matrix, row_i + 1)];
+  if (row_i < 0) {
+    printf("Expected row to be greater than equal to 1.");
+    exit(1);
+  }
 
-  int* row_values = (int*)calloc(csr_matrix->matrix->width, sizeof(int));
+  int n_non_zeros_before_row = csr_matrix->cnzs[row_i];
+  int n_non_zeros_before_next_row = csr_matrix->cnzs[row_i+ 1];
+
+  union matrix_value* row_values = (int*)calloc(csr_matrix->width, sizeof(union matrix_value));
   for (int x = n_non_zeros_before_row; x < n_non_zeros_before_next_row; x++) {
-    int column_index = data[csr_row_index(csr_matrix, x)];
-    int value = data[csr_val_index(csr_matrix, x)];
-    row_values[column_index] = value;
+    int col_index = csr_matrix->cols[x];
+    if (csr_matrix->data_type == DATA_TYPE_INTEGER) {
+      row_values[col_index].i = ((int*)csr_matrix->vals)[x];
+    }
+    else {
+      row_values[col_index].f = ((float*)csr_matrix->vals)[x];
+    }
   }
 
   return row_values;

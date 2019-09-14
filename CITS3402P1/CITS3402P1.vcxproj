@@ -163,15 +163,18 @@
     <ClCompile Include="coo_matrix.c" />
     <ClCompile Include="csc_matrix.c" />
     <ClCompile Include="csr_matrix.c" />
+    <ClCompile Include="file_reader.c" />
     <ClCompile Include="matrix_operations.c" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="int1.in" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="coo_matrix.h" />
     <ClInclude Include="csc_matrix.h" />
     <ClInclude Include="csr_matrix.h" />
+    <ClInclude Include="file_reader.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="matrix_operations.h" />
   </ItemGroup>
