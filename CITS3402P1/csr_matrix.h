@@ -8,8 +8,11 @@ struct csr_matrix
   int width;
   int height;
   int n_non_zeros;
+  int cnzs_len;
+  int col_is_len;
+  int vals_len;
   int* cnzs;
-  int* cols;
+  int* col_is;
   union matrix_value* vals;
 };
 

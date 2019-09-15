@@ -167,7 +167,6 @@
     <ClCompile Include="matrix_operations.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="int1.in" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>

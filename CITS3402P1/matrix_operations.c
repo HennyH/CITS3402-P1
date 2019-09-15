@@ -35,19 +35,27 @@ void* matrix_scalar_multiply(char data_type, float a, void* matrix, int width, i
 union matrix_value matrix_trace(char data_type, struct coo_matrix* coo_matrix)
 {
   int i;
-  union matrix_value trace;
-  set_zero_matrix_value(data_type, &trace);
+  float trace_f = 0;
+  int trace_i = 0;
   int n_values = coo_matrix->n_triples;
-#pragma omp parallel for shared(coo_matrix) reduction(+: trace)
+#pragma omp parallel for shared(coo_matrix) reduction(+: trace_f) reduction(+: trace_i)
   for (i = 0; i < n_values; i++) {
     if (coo_matrix->triples[i].row_i == coo_matrix->triples[i].col_i) {
       if (data_type == DATA_TYPE_INTEGER) {
-        trace.i += coo_matrix->triples[i].value.i;
+        trace_i += coo_matrix->triples[i].value.i;
       }
       else {
-        trace.f += coo_matrix->triples[i].value.f;
+        trace_f += coo_matrix->triples[i].value.f;
       }
     }
+  }
+
+  union matrix_value trace;
+  if (data_type == DATA_TYPE_FLOAT) {
+    trace.f = trace_f;
+  }
+  else {
+    trace.i = trace_i;
   }
   return trace;
 }

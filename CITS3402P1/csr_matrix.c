@@ -14,11 +14,14 @@ struct csr_matrix* csr_matrix_constructor(char data_type, int width, int height,
 
   struct csr_matrix* m = (struct csr_matrix*)malloc(sizeof(struct csr_matrix));
   m->n_non_zeros = n_non_zeros;
+  m->cnzs_len = cnzs_len;
+  m->col_is_len = cols_len;
+  m->vals_len = vals_len;
   m->width = width;
   m->height = height;
   m->data_type = data_type;
   m->cnzs = (int*)malloc(sizeof(int) * cnzs_len);
-  m->cols = (int*)malloc(sizeof(int) * cols_len);
+  m->col_is = (int*)malloc(sizeof(int) * cols_len);
   m->vals = (union matrix_value*)malloc(sizeof(union matrix_value) * vals_len);
 
   /* We prepend a 0 into the non-zeros by column to avoid erros
@@ -41,7 +44,7 @@ struct csr_matrix* csr_matrix_constructor(char data_type, int width, int height,
         m->vals[next_value_i].f = ((float*)values)[i];;
       }
 
-      m->cols[next_value_i] = col_i;
+      m->col_is[next_value_i] = col_i;
       seen_non_zeros++;
       next_value_i++;
     }
@@ -68,7 +71,7 @@ union matrix_value* csr_matrix_get_row(int row_i, struct csr_matrix* csr_matrix)
 
   union matrix_value* row_values = (int*)calloc(csr_matrix->width, sizeof(union matrix_value));
   for (int x = n_non_zeros_before_row; x < n_non_zeros_before_next_row; x++) {
-    int col_index = csr_matrix->cols[x];
+    int col_index = csr_matrix->col_is[x];
     if (csr_matrix->data_type == DATA_TYPE_INTEGER) {
       row_values[col_index].i = ((int*)csr_matrix->vals)[x];
     }

@@ -18,5 +18,25 @@
     <ClCompile Include="CITS3402P1-Tests.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\CITS3402P1\coo_matrix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CITS3402P1\csc_matrix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CITS3402P1\csr_matrix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CITS3402P1\file_reader.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CITS3402P1\matrix_operations.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\CITS3402P1\int1.in">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

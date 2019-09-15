@@ -8,8 +8,11 @@ struct csc_matrix
   int width;
   int height;
   int n_non_zeros;
+  int cnzs_len;
+  int row_is_len;
+  int vals_len;
   int* cnzs;
-  int* rows;
+  int* row_is;
   union matrix_value* vals;
 };
 

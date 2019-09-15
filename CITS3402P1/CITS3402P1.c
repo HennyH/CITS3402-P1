@@ -13,19 +13,7 @@
 
 int main()
 {
-  /*int h = 4;
-  int w = 7;
-  int values[] = { 0,1,0,0,0,0,0,
-                  0,0,2,1,0,0,1,
-                  0,0,0,0,0,0,0,
-                  0,0,0,1,0,3,0 };
-  matrix_constructor cns = &csc_matrix_constructor;
-  struct csc_matrix* m = (struct csc_matrix*)cns(w, h, values);
-  int* col3 = csc_matrix_get_col(3, m);*/
 
- /* int i[] = { 1,1,1,1 };
-  struct csc_matrix* i2 = (struct csc_matrix*)csc_matrix_constructor(2, 2, i);
-  struct csc_matrix* r = (struct csc_matrix*)matrix_scalar_multiply(5, i2, 2, 2, &csc_matrix_get_col, &csc_matrix_constructor);*/
 
   float a[] = {
     1.0,1.0,

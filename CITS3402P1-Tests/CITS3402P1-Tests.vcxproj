@@ -92,6 +92,8 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Program Files %28x86%29\check\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsC</CompileAs>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -144,6 +146,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <CompileAs>CompileAsC</CompileAs>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -153,7 +157,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\CITS3402P1\coo_matrix.c" />
+    <ClCompile Include="..\CITS3402P1\csc_matrix.c" />
+    <ClCompile Include="..\CITS3402P1\csr_matrix.c" />
+    <ClCompile Include="..\CITS3402P1\file_reader.c" />
+    <ClCompile Include="..\CITS3402P1\matrix_operations.c" />
     <ClCompile Include="CITS3402P1-Tests.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\CITS3402P1\int1.in" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CITS3402P1\CITS3402P1.vcxproj">
