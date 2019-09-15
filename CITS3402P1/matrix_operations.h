@@ -26,11 +26,12 @@ void* matrix_add(
 );
 
 void* matrix_multiply(
-  char data_type,
+  char left_data_type,
   int left_matrix_width,
   int left_matrix_height,
   void* left_matrix,
   matrix_get_row get_left_matrix_row,
+  char right_data_type,
   int right_matrix_width,
   int right_matrix_height,
   void* right_matrix,

@@ -21,9 +21,9 @@ inline int count_non_zero_values(char data_type, int width, int height, void* va
   return n_non_zeros;
 }
 
-inline int is_zero_value(char data_type, int i, void* values) {
-  return (data_type == DATA_TYPE_INTEGER && ((int*)values)[i] == 0) ||
-    (data_type == DATA_TYPE_FLOAT && ((float*)values)[i] == 0.0f);
+inline int is_zero_value(char data_type, int i, union matrix_value* values) {
+  return (data_type == DATA_TYPE_INTEGER && values[i].i == 0) ||
+    (data_type == DATA_TYPE_FLOAT && values[i].f == 0.0f);
 }
 
 inline void set_zero_matrix_value(char data_type, union matrix_value* value) {
@@ -35,7 +35,7 @@ inline void set_zero_matrix_value(char data_type, union matrix_value* value) {
   }
 }
 
-typedef void* (*matrix_constructor)(char data_type, int width, int height, int* values);
+typedef void* (*matrix_constructor)(char data_type, int width, int height, union matrix_value* values);
 typedef int (*matrix_get_width)(void* matrix);
 typedef int (*matrix_get_height)(void* matrix);
 typedef union matrix_value* (*matrix_get_row)(int row_i, void* matrix);

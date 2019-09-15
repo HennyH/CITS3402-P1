@@ -4,9 +4,7 @@
 #include <direct.h>
 #include "matrix.h"
 
-void* read_file(char* filename, char* out_data_type, int* out_n_rows, int* out_n_cols) {
-  char cwd[200];
-  _getcwd(cwd, sizeof(char) * 200);
+union matrix_value* read_file(char* filename, char* out_data_type, int* out_n_rows, int* out_n_cols) {
   FILE* in_file;
   errno_t open_err = fopen_s(&in_file, filename, "r");
 
@@ -17,15 +15,13 @@ void* read_file(char* filename, char* out_data_type, int* out_n_rows, int* out_n
   fscanf_s(in_file, "%i", out_n_cols);
 
   int n_values = (*out_n_rows) * (*out_n_cols);
-  void* values = *out_data_type == DATA_TYPE_INTEGER
-    ? malloc(sizeof(int) * n_values)
-    : malloc(sizeof(float) * n_values);
+  union matrix_value* values = malloc(sizeof(union matrix_value) * n_values);
   for (int i = 0; i < n_values; i++) {
     if (*out_data_type == DATA_TYPE_INTEGER) {
-      fscanf_s(in_file, "%d", &((int*)values)[i]);
+      fscanf_s(in_file, "%d", &(values[i].i));
     }
     else {
-      fscanf_s(in_file, "%f", &((float*)values)[i]);
+      fscanf_s(in_file, "%f", &(values[i].f));
     }
   }
 

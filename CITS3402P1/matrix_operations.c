@@ -120,17 +120,17 @@ void* matrix_multiply(
   const int result_matrix_width = right_matrix_width;
   const int result_matrix_height = left_matrix_height;
   const char result_data_type = left_data_type == DATA_TYPE_FLOAT || right_data_type == DATA_TYPE_FLOAT ? DATA_TYPE_FLOAT : DATA_TYPE_INTEGER;
-  union matrix_value* result_values = (int*)malloc(sizeof(union matrix_value) * result_matrix_width * result_matrix_height);
+  union matrix_value* result_values = malloc(sizeof(union matrix_value) * result_matrix_width * result_matrix_height);
   union matrix_value* left_matrix_row;
 
   for (int right_matrix_col_i = 0; right_matrix_col_i < right_matrix_width; right_matrix_col_i++) {
     union matrix_value* right_matrix_column = get_right_matrix_col(right_matrix_col_i, right_matrix);
     int left_matrix_row_i;
-#pragma omp parallel for shared(right_matrix_column, result_values) private(left_matrix_row)
+    int i;
+#pragma omp parallel for shared(right_matrix_column, result_values) private(left_matrix_row, i)
     for (left_matrix_row_i = 0; left_matrix_row_i < left_matrix_height; left_matrix_row_i++) {
       left_matrix_row = get_left_matrix_row(left_matrix_row_i, left_matrix);
-      union matrix_value col_row_product_sum;
-      set_zero_matrix_value(result_data_type, &col_row_product_sum);
+      union matrix_value col_row_product_sum = { .i = 0,.f = 0 };
       for (int i = 0; i < right_matrix_height; i++) {
         if (result_data_type == DATA_TYPE_FLOAT) {
           col_row_product_sum.f +=
@@ -143,13 +143,7 @@ void* matrix_multiply(
             (left_data_type == DATA_TYPE_FLOAT ? left_matrix_row[i].f : left_matrix_row[i].i);
         }
       }
-
-      if (result_data_type == DATA_TYPE_FLOAT) {
-        result_values[right_matrix_col_i * result_matrix_width + left_matrix_row_i].i = col_row_product_sum.i;
-      }
-      else {
-        result_values[right_matrix_col_i * result_matrix_width + left_matrix_row_i].f = col_row_product_sum.f;
-      }
+      result_values[result_matrix_width * left_matrix_row_i + right_matrix_col_i] = col_row_product_sum;
     }
   }
 

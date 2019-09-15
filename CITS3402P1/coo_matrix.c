@@ -4,7 +4,7 @@
 #include "matrix.h"
 #include "coo_matrix.h"
 
-struct coo_matrix* coo_matrix_constructor(char data_type, int width, int height, void* values)
+struct coo_matrix* coo_matrix_constructor(char data_type, int width, int height, union matrix_value* values)
 {
   int n_non_zeros = count_non_zero_values(data_type, width, height, values);
 
@@ -18,13 +18,7 @@ struct coo_matrix* coo_matrix_constructor(char data_type, int width, int height,
       }
       triples[next_triple_i].row_i = row_i;
       triples[next_triple_i].col_i = col_i;
-      if (data_type == DATA_TYPE_INTEGER) {
-        triples[next_triple_i].value.i = ((int*)values)[value_i];
-      }
-      else {
-        triples[next_triple_i].value.f = ((float*)values)[value_i];
-      }
-      
+      triples[next_triple_i].value = values[value_i];
       next_triple_i++;
     }
   }

@@ -16,7 +16,7 @@ struct csr_matrix
   union matrix_value* vals;
 };
 
-struct csr_matrix* csr_matrix_constructor(char data_type, int width, int height, void* values);
+struct csr_matrix* csr_matrix_constructor(char data_type, int width, int height, union matrix_value* values);
 
 union matrix_value* csr_matrix_get_row(int row_i, struct csr_matrix* csr_matrix);
 

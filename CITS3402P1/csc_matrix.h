@@ -16,6 +16,6 @@ struct csc_matrix
   union matrix_value* vals;
 };
 
-struct csc_matrix* csc_matrix_constructor(char data_type, int width, int height, void* values);
+struct csc_matrix* csc_matrix_constructor(char data_type, int width, int height, union matrix_value* values);
 
 union matrix_value* csc_matrix_get_col(int col, struct csc_matrix* csc_matrix);

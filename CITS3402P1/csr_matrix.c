@@ -4,7 +4,7 @@
 #include "matrix.h"
 #include "csr_matrix.h"
 
-struct csr_matrix* csr_matrix_constructor(char data_type, int width, int height, void* values)
+struct csr_matrix* csr_matrix_constructor(char data_type, int width, int height, union matrix_value* values)
 {
   int n_non_zeros = count_non_zero_values(data_type, width, height, values);
 
@@ -37,13 +37,8 @@ struct csr_matrix* csr_matrix_constructor(char data_type, int width, int height,
       if (is_zero_value(data_type, i, values)) {
         continue;
       }
-      if (data_type == DATA_TYPE_INTEGER) {
-        m->vals[next_value_i].i = ((int*)values)[i];
-      }
-      else {
-        m->vals[next_value_i].f = ((float*)values)[i];;
-      }
 
+      m->vals[next_value_i] = values[i];
       m->col_is[next_value_i] = col_i;
       seen_non_zeros++;
       next_value_i++;

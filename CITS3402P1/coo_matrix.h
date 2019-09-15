@@ -19,7 +19,7 @@ struct coo_matrix
   struct coo_triple* triples;
 };
 
-struct coo_matrix* coo_matrix_constructor(char data_type, int width, int height, void* values);
+struct coo_matrix* coo_matrix_constructor(char data_type, int width, int height, union matrix_value* values);
 
 inline struct coo_triple coo_matrix_get_triple(struct coo_matrix* coo_matrix, int i)
 {
