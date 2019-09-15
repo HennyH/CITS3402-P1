@@ -11,6 +11,7 @@
 #include "../CITS3402P1/csc_matrix.h"
 #include "../CITS3402P1/csr_matrix.h"
 #include "../CITS3402P1/matrix_operations.h"
+#include "../CITS3402P1/file_reader.h"
 
 START_TEST(coo_matrix_constructor_ints)
 {
@@ -157,6 +158,60 @@ START_TEST(csc_matrix_constructor_ints)
 }
 END_TEST
 
+START_TEST(file_reader_reads_int1)
+{
+  char data_type;
+  int n_rows, n_cols;
+  int* values = (int*)read_file("int1.in", &data_type, &n_rows, &n_cols);
+  ck_assert_int_eq(data_type, DATA_TYPE_INTEGER);
+  ck_assert_int_eq(n_rows, 4);
+  ck_assert_int_eq(n_cols, 4);
+  ck_assert_int_eq(values[0], 1);
+  ck_assert_int_eq(values[1], 0);
+  ck_assert_int_eq(values[2], 0);
+  ck_assert_int_eq(values[3], 0);
+  ck_assert_int_eq(values[4], 0);
+  ck_assert_int_eq(values[5], 1);
+  ck_assert_int_eq(values[6], 0);
+  ck_assert_int_eq(values[7], 0);
+  ck_assert_int_eq(values[8], 0);
+  ck_assert_int_eq(values[9], 0);
+  ck_assert_int_eq(values[10], 1);
+  ck_assert_int_eq(values[11], 0);
+  ck_assert_int_eq(values[12], 0);
+  ck_assert_int_eq(values[13], 0);
+  ck_assert_int_eq(values[14], 0);
+  ck_assert_int_eq(values[15], 1);
+}
+END_TEST
+
+START_TEST(file_reader_reads_float1)
+{
+  char data_type;
+  int n_rows, n_cols;
+  float* values = (float*)read_file("float1.in", &data_type, &n_rows, &n_cols);
+  ck_assert_int_eq(data_type, DATA_TYPE_FLOAT);
+  ck_assert_int_eq(n_rows, 4);
+  ck_assert_int_eq(n_cols, 4);
+  ck_assert_float_eq(values[0], 1.0);
+  ck_assert_float_eq(values[1], 0.0);
+  ck_assert_float_eq(values[2], 0.0);
+  ck_assert_float_eq(values[3], 0.0);
+  ck_assert_float_eq(values[4], 0.0);
+  ck_assert_float_eq(values[5], 0.0);
+  ck_assert_float_eq(values[6], 0.0);
+  ck_assert_float_eq(values[7], 0.0);
+  ck_assert_float_eq(values[8], 0.0);
+  ck_assert_float_eq(values[9], 1.0);
+  ck_assert_float_eq(values[10], 0.5);
+  ck_assert_float_eq(values[11], 0.0);
+  ck_assert_float_eq(values[12], 0.0);
+  ck_assert_float_eq(values[13], 0.0);
+  ck_assert_float_eq(values[14], 0.0);
+  ck_assert_float_eq(values[15], 0.75);
+}
+END_TEST
+
 int main(void)
 {
   TCase* matrix_constructors_test_case = tcase_create("Matrix Constructors");
@@ -165,8 +220,13 @@ int main(void)
   tcase_add_test(matrix_constructors_test_case, csr_matrix_constructor_ints);
   tcase_add_test(matrix_constructors_test_case, csc_matrix_constructor_ints);
 
+  TCase* file_reader_test_case = tcase_create("File Reader");
+  tcase_add_test(file_reader_test_case, file_reader_reads_int1);
+  tcase_add_test(file_reader_test_case, file_reader_reads_float1);
+
   Suite* project_test_suite = suite_create("Project Test Suite");
   suite_add_tcase(project_test_suite, matrix_constructors_test_case);
+  suite_add_tcase(project_test_suite, file_reader_test_case);
 
   SRunner* runner = srunner_create(project_test_suite);
 

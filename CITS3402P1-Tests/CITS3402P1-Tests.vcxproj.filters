@@ -35,7 +35,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\CITS3402P1\int1.in">
+    <None Include="int1.in">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="float1.in">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

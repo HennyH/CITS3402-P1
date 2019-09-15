@@ -165,12 +165,13 @@
     <ClCompile Include="CITS3402P1-Tests.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\CITS3402P1\int1.in" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\CITS3402P1\CITS3402P1.vcxproj">
       <Project>{c959e241-7f0f-4f00-8103-849b388f0baf}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="float1.in" />
+    <None Include="int1.in" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
