@@ -27,20 +27,20 @@ int main()
   struct csc_matrix* i2 = (struct csc_matrix*)csc_matrix_constructor(2, 2, i);
   struct csc_matrix* r = (struct csc_matrix*)matrix_scalar_multiply(5, i2, 2, 2, &csc_matrix_get_col, &csc_matrix_constructor);*/
 
-  int a[] = {
-    1,1,
-    2,2,
-    3,3
+  float a[] = {
+    1.0,1.0,
+    2.0,2.0,
+    3.0,3.0
   };
-  int b[] = {
-    1,
-    2
+  float b[] = {
+    1.0,
+    2.0
   };
-  struct csr_matrix* lm = csr_matrix_constructor('i', 2, 3, a);
-  struct csc_matrix* rm = csc_matrix_constructor('i', 1, 2, b);
+  struct csr_matrix* lm = csr_matrix_constructor('f', 2, 3, a);
+  struct csc_matrix* rm = csc_matrix_constructor('f', 1, 2, b);
   struct coo_matrix* r = matrix_multiply(
-    'i', 2, 3, lm, &csr_matrix_get_row,
-    'i', 1, 2, rm, &csc_matrix_get_col,
+    'f', 2, 3, lm, &csr_matrix_get_row,
+    'f', 1, 2, rm, &csc_matrix_get_col,
     &coo_matrix_constructor
   );
   struct coo_triple* triples = r->triples;
