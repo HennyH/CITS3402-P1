@@ -26,10 +26,12 @@ int main()
   };
   struct csr_matrix* lm = csr_matrix_constructor('f', 2, 3, a);
   struct csc_matrix* rm = csc_matrix_constructor('f', 1, 2, b);
-  struct coo_matrix* r = matrix_multiply(
+  struct coo_matrix* r;
+  enum mop_errno_t error = matrix_multiply(
     'f', 2, 3, lm, &csr_matrix_get_row,
     'f', 1, 2, rm, &csc_matrix_get_col,
-    &coo_matrix_constructor
+    &coo_matrix_constructor,
+    &r
   );
   struct coo_triple* triples = r->triples;
   printf("Hello world");

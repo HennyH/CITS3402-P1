@@ -4,10 +4,9 @@
 #include "matrix.h"
 #include "coo_matrix.h"
 #include "csc_matrix.h"
+#include "matrix_operations.h"
 
-///<summary>Constructs a new matrix which is the result of a scalar multiplication</summary>
-///<param name="a">The multiple by which to multiply <paramref name="matrix"/></param>
-void* matrix_scalar_multiply(char data_type, float a, void* matrix, int width, int height, matrix_get_col get_col, matrix_constructor constructor)
+enum mop_errno_t matrix_scalar_multiply(char data_type, float a, void* matrix, int width, int height, matrix_get_col get_col, matrix_constructor constructor, void** result_matrix)
 {
   union matrix_value* result_values = (int*)malloc(sizeof(union matrix_value) * width * height);
 
@@ -27,12 +26,12 @@ void* matrix_scalar_multiply(char data_type, float a, void* matrix, int width, i
     }
   }
 
-  void* result_matrix = constructor('f', width, height, result_values);
+  *result_matrix = constructor('f', width, height, result_values);
   free(result_values);
-  return result_matrix;
+  return mop_errno_ok;
 }
 
-union matrix_value matrix_trace(char data_type, struct coo_matrix* coo_matrix)
+enum mop_errno_t matrix_trace(char data_type, struct coo_matrix* coo_matrix, union matrix_value* trace)
 {
   int i;
   float trace_f = 0;
@@ -50,17 +49,16 @@ union matrix_value matrix_trace(char data_type, struct coo_matrix* coo_matrix)
     }
   }
 
-  union matrix_value trace;
   if (data_type == DATA_TYPE_FLOAT) {
-    trace.f = trace_f;
+    trace->f = trace_f;
   }
   else {
-    trace.i = trace_i;
+    trace->i = trace_i;
   }
-  return trace;
+  return mop_errno_ok;
 }
 
-void* matrix_add(char left_data_type, char right_data_type, int width, int height, void* left_matrix, void* right_matrix, matrix_get_col get_col, matrix_constructor constructor)
+enum mop_errno_t matrix_add(char left_data_type, char right_data_type, int width, int height, void* left_matrix, void* right_matrix, matrix_get_col get_col, matrix_constructor constructor, void** result_matrix)
 {
   union matrix_value* result_values = (union matrix_value*)malloc(sizeof(union matrix_value) * width * height);
   const char result_data_type = left_data_type == DATA_TYPE_FLOAT || right_data_type == DATA_TYPE_FLOAT ? DATA_TYPE_FLOAT : DATA_TYPE_INTEGER;
@@ -94,17 +92,17 @@ void* matrix_add(char left_data_type, char right_data_type, int width, int heigh
     }
   }
 
-  void* result_matrix = constructor(
+  *result_matrix = constructor(
     left_data_type == DATA_TYPE_FLOAT || right_data_type == DATA_TYPE_FLOAT ? DATA_TYPE_FLOAT : DATA_TYPE_INTEGER,
     width,
     height,
     result_values
   );
   free(result_values);
-  return result_matrix;
+  return mop_errno_ok;
 }
 
-void* matrix_multiply(
+enum mop_errno_t matrix_multiply(
   char left_data_type,
   int left_matrix_width,
   int left_matrix_height,
@@ -115,8 +113,12 @@ void* matrix_multiply(
   int right_matrix_height,
   void* right_matrix,
   matrix_get_col get_right_matrix_col,
-  matrix_constructor constructor
+  matrix_constructor constructor,
+  void** result_matrix
 ) {
+  if (right_matrix_height != left_matrix_width) {
+    return mop_errno_dimension;
+  }
   const int result_matrix_width = right_matrix_width;
   const int result_matrix_height = left_matrix_height;
   const char result_data_type = left_data_type == DATA_TYPE_FLOAT || right_data_type == DATA_TYPE_FLOAT ? DATA_TYPE_FLOAT : DATA_TYPE_INTEGER;
@@ -147,12 +149,12 @@ void* matrix_multiply(
     }
   }
 
-  void* result_matrix = constructor(
+  *result_matrix = constructor(
     result_data_type,
     result_matrix_width,
     result_matrix_height,
     result_values
   );
   free(result_values);
-  return result_matrix;
+  return mop_errno_ok;
 }

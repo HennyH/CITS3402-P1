@@ -35,10 +35,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="int1.in">
+    <None Include="int_3x2.in">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="float1.in">
+    <None Include="int_2x3.in">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="int_4x4.in">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="float_4x4.in">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

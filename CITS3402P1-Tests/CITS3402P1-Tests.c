@@ -162,7 +162,7 @@ START_TEST(file_reader_reads_int1)
 {
   char data_type;
   int n_rows, n_cols;
-  union matrix_value* values = read_file("int1.in", &data_type, &n_rows, &n_cols);
+  union matrix_value* values = read_file("int_4x4.in", &data_type, &n_rows, &n_cols);
   ck_assert_int_eq(data_type, DATA_TYPE_INTEGER);
   ck_assert_int_eq(n_rows, 4);
   ck_assert_int_eq(n_cols, 4);
@@ -189,7 +189,7 @@ START_TEST(file_reader_reads_float1)
 {
   char data_type;
   int n_rows, n_cols;
-  union matrix_value* values = read_file("float1.in", &data_type, &n_rows, &n_cols);
+  union matrix_value* values = read_file("float_4x4.in", &data_type, &n_rows, &n_cols);
   ck_assert_int_eq(data_type, DATA_TYPE_FLOAT);
   ck_assert_int_eq(n_rows, 4);
   ck_assert_int_eq(n_cols, 4);
@@ -212,19 +212,22 @@ START_TEST(file_reader_reads_float1)
 }
 END_TEST
 
-START_TEST(matrix_op_mul_int_m_and_float_n)
+START_TEST(matrix_op_mul_mixed_square_matrix)
 {
   char left_m_data_type, right_m_data_type;
   int left_m_n_cols, left_m_n_rows, right_m_n_cols, right_m_n_rows;
-  void* left_m_values = read_file("int1.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
-  void* right_m_values = read_file("float1.in", &right_m_data_type, &right_m_n_rows, &right_m_n_cols);
+  void* left_m_values = read_file("int_4x4.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
+  void* right_m_values = read_file("float_4x4.in", &right_m_data_type, &right_m_n_rows, &right_m_n_cols);
   struct csr_matrix* left_m = csr_matrix_constructor(left_m_data_type, left_m_n_cols, left_m_n_rows, left_m_values);
   struct csc_matrix* right_m = csc_matrix_constructor(right_m_data_type, right_m_n_cols, right_m_n_rows, right_m_values);
-  struct coo_matrix* result = matrix_multiply(
+  struct coo_matrix* result;
+  enum mop_errno_t error = matrix_multiply(
     left_m_data_type, left_m_n_cols, left_m_n_rows, left_m, &csr_matrix_get_row,
     right_m_data_type, right_m_n_cols, right_m_n_rows, right_m, &csc_matrix_get_col,
-    &coo_matrix_constructor
+    &coo_matrix_constructor,
+    &result
   );
+  ck_assert_int_eq(error, mop_errno_ok);
   /* the result of <identity> * <m> should just be <m> */
   ck_assert_int_eq(result->width, 4);
   ck_assert_int_eq(result->height, 4);
@@ -249,6 +252,65 @@ START_TEST(matrix_op_mul_int_m_and_float_n)
 }
 END_TEST
 
+START_TEST(matrix_op_mul_int_rectangular)
+{
+  char left_m_data_type, right_m_data_type;
+  int left_m_n_cols, left_m_n_rows, right_m_n_cols, right_m_n_rows;
+  void* left_m_values = read_file("int_2x3.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
+  void* right_m_values = read_file("int_3x2.in", &right_m_data_type, &right_m_n_rows, &right_m_n_cols);
+  struct csr_matrix* left_m = csr_matrix_constructor(left_m_data_type, left_m_n_cols, left_m_n_rows, left_m_values);
+  struct csc_matrix* right_m = csc_matrix_constructor(right_m_data_type, right_m_n_cols, right_m_n_rows, right_m_values);
+  struct coo_matrix* result;
+  enum mop_errno_t error = matrix_multiply(
+    left_m_data_type, left_m_n_cols, left_m_n_rows, left_m, &csr_matrix_get_row,
+    right_m_data_type, right_m_n_cols, right_m_n_rows, right_m, &csc_matrix_get_col,
+    &coo_matrix_constructor,
+    &result
+  );
+  ck_assert_int_eq(error, mop_errno_ok);
+  /* the result of <identity> * <m> should just be <m> */
+  ck_assert_int_eq(result->width, 2);
+  ck_assert_int_eq(result->height, 2);
+  ck_assert_int_eq(result->n_triples, 4);
+  ck_assert_int_eq(result->data_type, DATA_TYPE_INTEGER);
+
+  ck_assert_int_eq(coo_matrix_get_triple(result, 0).col_i, 0);
+  ck_assert_int_eq(coo_matrix_get_triple(result, 0).row_i, 0);
+  ck_assert_int_eq(coo_matrix_get_triple(result, 0).value.i, 15);
+
+  ck_assert_int_eq(coo_matrix_get_triple(result, 1).col_i, 1);
+  ck_assert_int_eq(coo_matrix_get_triple(result, 1).row_i, 0);
+  ck_assert_int_eq(coo_matrix_get_triple(result, 1).value.i, 15);
+
+  ck_assert_int_eq(coo_matrix_get_triple(result, 2).col_i, 0);
+  ck_assert_int_eq(coo_matrix_get_triple(result, 2).row_i, 1);
+  ck_assert_int_eq(coo_matrix_get_triple(result, 2).value.i, 7);
+
+  ck_assert_int_eq(coo_matrix_get_triple(result, 3).col_i, 1);
+  ck_assert_int_eq(coo_matrix_get_triple(result, 3).row_i, 1);
+  ck_assert_int_eq(coo_matrix_get_triple(result, 3).value.i, 7);
+}
+END_TEST
+
+START_TEST(matrix_op_mul_invalid_dimensions)
+{
+  char left_m_data_type, right_m_data_type;
+  int left_m_n_cols, left_m_n_rows, right_m_n_cols, right_m_n_rows;
+  void* left_m_values = read_file("int_4x4.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
+  void* right_m_values = read_file("int_3x2.in", &right_m_data_type, &right_m_n_rows, &right_m_n_cols);
+  struct csr_matrix* left_m = csr_matrix_constructor(left_m_data_type, left_m_n_cols, left_m_n_rows, left_m_values);
+  struct csc_matrix* right_m = csc_matrix_constructor(right_m_data_type, right_m_n_cols, right_m_n_rows, right_m_values);
+  struct coo_matrix* result;
+  enum mop_errno_t error = matrix_multiply(
+    left_m_data_type, left_m_n_cols, left_m_n_rows, left_m, &csr_matrix_get_row,
+    right_m_data_type, right_m_n_cols, right_m_n_rows, right_m, &csc_matrix_get_col,
+    &coo_matrix_constructor,
+    &result
+  );
+  ck_assert_int_eq(error, mop_errno_dimension);
+}
+END_TEST
+
 int main(void)
 {
   TCase* matrix_constructors_test_case = tcase_create("Matrix Constructors");
@@ -262,7 +324,9 @@ int main(void)
   tcase_add_test(file_reader_test_case, file_reader_reads_float1);
 
   TCase* matrix_ops_test_case = tcase_create("Matrix Operations");
-  tcase_add_test(matrix_ops_test_case, matrix_op_mul_int_m_and_float_n);
+  tcase_add_test(matrix_ops_test_case, matrix_op_mul_mixed_square_matrix);
+  tcase_add_test(matrix_ops_test_case, matrix_op_mul_invalid_dimensions);
+  tcase_add_test(matrix_ops_test_case, matrix_op_mul_int_rectangular);
 
   Suite* project_test_suite = suite_create("Project Test Suite");
   suite_add_tcase(project_test_suite, matrix_constructors_test_case);

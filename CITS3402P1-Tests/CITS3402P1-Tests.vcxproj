@@ -170,8 +170,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="float1.in" />
-    <None Include="int1.in" />
+    <None Include="float_4x4.in" />
+    <None Include="int_4x4.in" />
+    <None Include="int_2x3.in" />
+    <None Include="int_3x2.in" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
