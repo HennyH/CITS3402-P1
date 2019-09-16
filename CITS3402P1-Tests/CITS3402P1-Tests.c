@@ -362,7 +362,7 @@ START_TEST(matrix_op_transpose_int_square)
   void* values = read_file("int_2x2.in", &data_type, &n_rows, &n_cols);
   struct csc_matrix* m = csc_matrix_constructor(data_type, n_cols, n_rows, values);
   struct coo_matrix* m_transposed;
-  enum mop_errno_t error = matrix_transpose(data_type, n_cols, n_rows, m, &csc_matrix_get_col, coo_matrix_constructor, &m_transposed);
+  enum mop_errno_t error = matrix_transpose(data_type, n_cols, n_rows, m, &csc_matrix_get_col, NULL, coo_matrix_constructor, &m_transposed);
   ck_assert_int_eq(error, mop_errno_ok);
   ck_assert_int_eq(m_transposed->width, 2);
   ck_assert_int_eq(m_transposed->height, 2);
@@ -392,9 +392,9 @@ START_TEST(matrix_op_transpose_float_rectangluar)
   char data_type;
   int n_cols, n_rows;
   void* values = read_file("float_1x5.in", &data_type, &n_rows, &n_cols);
-  struct csc_matrix* m = csc_matrix_constructor(data_type, n_cols, n_rows, values);
+  struct csr_matrix* m = csr_matrix_constructor(data_type, n_cols, n_rows, values);
   struct coo_matrix* m_transposed;
-  enum mop_errno_t error = matrix_transpose(data_type, n_cols, n_rows, m, &csc_matrix_get_col, coo_matrix_constructor, &m_transposed);
+  enum mop_errno_t error = matrix_transpose(data_type, n_cols, n_rows, m, NULL, &csr_matrix_get_row, coo_matrix_constructor, &m_transposed);
   ck_assert_int_eq(error, mop_errno_ok);
   ck_assert_int_eq(m_transposed->width, 1);
   ck_assert_int_eq(m_transposed->height, 5);

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "matrix.h"
 #include "coo_matrix.h"
 #include "csc_matrix.h"
@@ -58,23 +59,40 @@ enum mop_errno_t matrix_trace(char data_type, struct coo_matrix* coo_matrix, uni
   return mop_errno_ok;
 }
 
-enum mop_errno_t matrix_transpose(char data_type, int width, int height, void* matrix, matrix_get_col get_col, matrix_constructor constructor, void** result_matrix) {
+enum mop_errno_t matrix_transpose(char data_type, int width, int height, void* matrix, matrix_get_col get_col, matrix_get_row get_row, matrix_constructor constructor, void** result_matrix) {
+  if (get_col == NULL && get_row == NULL) {
+    printf("Transpose requires either `get_col` or `get_row` to be provided.");
+    return mop_errno_argument_invalid;
+  }
+
   union matrix_value* result_values = calloc(sizeof(union matrix_value), width * height);
-  for (int col_i = 0; col_i < width; col_i++) {
-    union matrix_value* column_values;
-#pragma omp parallel shared(column_values, result_values)
+  /* What's going on here is that we allow the user to provide either a method of providing ROWS xor COLUMNS.
+   * depending on what they give we will either transpose the matrix via changing rows->columns xor columns->rows.
+   * We allow this to improve memory access patterns on matrices that are significantly wider or taller than they are tall or wide
+   * respectivley.
+   */
+  const bool is_columnwise = get_col != NULL;
+  /* we use a/b in the loops to try avoid any confusion that i/j (which associate with horizontal/vertical) might bring. */
+  const int a_max = is_columnwise ? width : height; /* if going columnwise the outer loop is over the columns */
+  const int b_max = is_columnwise ? height : width; /* if going columnwise the inner loop is over the row values of a column */
+  for (int a = 0; a < a_max; a++) {
+    union matrix_value* column_or_row_values;
+#pragma omp parallel shared(a_max, b_max, column_or_row_values, result_values)
     {
 #pragma omp single
       {
-        column_values = get_col(col_i, matrix);
+        column_or_row_values = is_columnwise ? get_col(a, matrix) : get_row(a, matrix);
       }
-      int row_i;
+      int b;
 #pragma omp for
-      for (row_i = 0; row_i < height; row_i++) {
-        /* note that in this case the row/col arguments match up to the col/row parameters respectivley!
-         * and we also swap the width/height.
-         */
-        set_ltr_ttb_value(col_i, row_i, height, width, column_values[row_i], result_values);
+      for (b = 0; b < b_max; b++) {
+        /* if we are going columnwise the 'row' of the input value is `b` (the column is `a` the outer loop), but since we are transposing
+         * and that means swapping rows->columns/colums->rows we use `a`. */
+        const int dest_row_i = is_columnwise ? a : b;
+        /* this follows similar logic to the line above. */
+        const int dest_col_i = is_columnwise ? b : a;
+        /* note that we make sure to swap the height/width parameters because we're putting it into the transposed matrix! */
+        set_ltr_ttb_value(dest_row_i, dest_col_i, height, width, column_or_row_values[b], result_values);
       }
     }
   }
