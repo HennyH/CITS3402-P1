@@ -35,6 +35,10 @@ inline void set_zero_matrix_value(char data_type, union matrix_value* value) {
   }
 }
 
+inline void set_ltr_ttb_value(int row_i, int col_i, int width, int height, union matrix_value value, union matrix_value* values) {
+  values[row_i * width + col_i] = value;
+}
+
 typedef void* (*matrix_constructor)(char data_type, int width, int height, union matrix_value* values);
 typedef int (*matrix_get_width)(void* matrix);
 typedef int (*matrix_get_height)(void* matrix);

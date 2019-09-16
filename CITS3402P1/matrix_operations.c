@@ -58,12 +58,17 @@ enum mop_errno_t matrix_trace(char data_type, struct coo_matrix* coo_matrix, uni
   return mop_errno_ok;
 }
 
-enum mop_errno_t matrix_add(char left_data_type, char right_data_type, int width, int height, void* left_matrix, void* right_matrix, matrix_get_col get_col, matrix_constructor constructor, void** result_matrix)
+enum mop_errno_t matrix_add(char left_data_type, int left_matrix_width, int left_matrix_height, void* left_matrix, matrix_get_col get_left_matrix_col, char right_data_type, int right_matrix_width, int right_matrix_height, void* right_matrix, matrix_get_col get_right_matrix_col, matrix_constructor constructor, void** result_matrix)
 {
-  union matrix_value* result_values = (union matrix_value*)malloc(sizeof(union matrix_value) * width * height);
+  if (left_matrix_width != right_matrix_width || left_matrix_height != right_matrix_height) {
+    return mop_errno_dimension;
+  }
+  const int result_matrix_width = left_matrix_width;
+  const int result_matrix_height = left_matrix_height;
+  union matrix_value* result_values = (union matrix_value*)calloc(sizeof(union matrix_value), result_matrix_width * result_matrix_height);
   const char result_data_type = left_data_type == DATA_TYPE_FLOAT || right_data_type == DATA_TYPE_FLOAT ? DATA_TYPE_FLOAT : DATA_TYPE_INTEGER;
 
-  for (int col_i = 0; col_i < width; col_i++)
+  for (int col_i = 0; col_i < result_matrix_width; col_i++)
   {
     union matrix_value* left_column;
     union matrix_value* right_column;
@@ -71,51 +76,33 @@ enum mop_errno_t matrix_add(char left_data_type, char right_data_type, int width
     {
 #pragma omp single
       {
-        left_column = get_col(col_i, left_matrix);
-        right_column = get_col(col_i, right_matrix);
+        left_column = get_left_matrix_col(col_i, left_matrix);
+        right_column = get_right_matrix_col(col_i, right_matrix);
       }
       int row_i = 0;
 #pragma omp for
-      for (row_i = 0; row_i < height; row_i++) {
-        set_zero_matrix_value(result_data_type, &result_values[col_i * height + row_i]);
+      for (row_i = 0; row_i < result_matrix_height; row_i++) {
+        union matrix_value col_row_sum = { .i = 0, .f = 0 };
         if (result_data_type == DATA_TYPE_FLOAT) {
-          result_values[col_i * height + row_i].f =
-            (right_data_type == DATA_TYPE_FLOAT ? left_column[row_i].f : left_column[row_i].i) *
-            (left_data_type == DATA_TYPE_FLOAT ? right_column[row_i].f : right_column[row_i].i);
+          col_row_sum.f = (float)(left_data_type== DATA_TYPE_FLOAT ? left_column[row_i].f : left_column[row_i].i) +
+              (float)(right_data_type == DATA_TYPE_FLOAT ? right_column[row_i].f : right_column[row_i].i);
         }
         else {
-          result_values[col_i * height + row_i].i =
-            (right_data_type == DATA_TYPE_FLOAT ? left_column[row_i].f : left_column[row_i].i) *
-            (left_data_type == DATA_TYPE_FLOAT ? right_column[row_i].f : right_column[row_i].i);
+          /* if the result type is 'int' then we must be adding two integer matrices! */
+          col_row_sum.i = left_column[row_i].i + right_column[row_i].i;
         }
+
+        set_ltr_ttb_value(row_i, col_i, result_matrix_width, result_matrix_height, col_row_sum, result_values);
       }
     }
   }
 
-  *result_matrix = constructor(
-    left_data_type == DATA_TYPE_FLOAT || right_data_type == DATA_TYPE_FLOAT ? DATA_TYPE_FLOAT : DATA_TYPE_INTEGER,
-    width,
-    height,
-    result_values
-  );
+  *result_matrix = constructor(result_data_type, result_matrix_width, result_matrix_height, result_values);
   free(result_values);
   return mop_errno_ok;
 }
 
-enum mop_errno_t matrix_multiply(
-  char left_data_type,
-  int left_matrix_width,
-  int left_matrix_height,
-  void* left_matrix,
-  matrix_get_row get_left_matrix_row,
-  char right_data_type,
-  int right_matrix_width,
-  int right_matrix_height,
-  void* right_matrix,
-  matrix_get_col get_right_matrix_col,
-  matrix_constructor constructor,
-  void** result_matrix
-) {
+enum mop_errno_t matrix_multiply(char left_data_type, int left_matrix_width, int left_matrix_height, void* left_matrix, matrix_get_row get_left_matrix_row, char right_data_type, int right_matrix_width, int right_matrix_height, void* right_matrix, matrix_get_col get_right_matrix_col, matrix_constructor constructor, void** result_matrix) {
   if (right_matrix_height != left_matrix_width) {
     return mop_errno_dimension;
   }
@@ -145,16 +132,12 @@ enum mop_errno_t matrix_multiply(
             (left_data_type == DATA_TYPE_FLOAT ? left_matrix_row[i].f : left_matrix_row[i].i);
         }
       }
-      result_values[result_matrix_width * left_matrix_row_i + right_matrix_col_i] = col_row_product_sum;
+
+      set_ltr_ttb_value(left_matrix_row_i, right_matrix_col_i, result_matrix_width, result_matrix_height, col_row_product_sum, result_values);
     }
   }
 
-  *result_matrix = constructor(
-    result_data_type,
-    result_matrix_width,
-    result_matrix_height,
-    result_values
-  );
+  *result_matrix = constructor(result_data_type, result_matrix_width, result_matrix_height, result_values);
   free(result_values);
   return mop_errno_ok;
 }
