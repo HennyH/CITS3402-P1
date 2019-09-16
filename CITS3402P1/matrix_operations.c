@@ -58,10 +58,37 @@ enum mop_errno_t matrix_trace(char data_type, struct coo_matrix* coo_matrix, uni
   return mop_errno_ok;
 }
 
+enum mop_errno_t matrix_transpose(char data_type, int width, int height, void* matrix, matrix_get_col get_col, matrix_constructor constructor, void** result_matrix) {
+  union matrix_value* result_values = calloc(sizeof(union matrix_value), width * height);
+  for (int col_i = 0; col_i < width; col_i++) {
+    union matrix_value* column_values;
+#pragma omp parallel shared(column_values, result_values)
+    {
+#pragma omp single
+      {
+        column_values = get_col(col_i, matrix);
+      }
+      int row_i;
+#pragma omp for
+      for (row_i = 0; row_i < height; row_i++) {
+        /* note that in this case the row/col arguments match up to the col/row parameters respectivley!
+         * and we also swap the width/height.
+         */
+        set_ltr_ttb_value(col_i, row_i, height, width, column_values[row_i], result_values);
+      }
+    }
+  }
+
+  /* note we swapped the height/width arguments here! */
+  *result_matrix = constructor(data_type, height, width, result_values);
+  free(result_values);
+  return mop_errno_ok;
+}
+
 enum mop_errno_t matrix_add(char left_data_type, int left_matrix_width, int left_matrix_height, void* left_matrix, matrix_get_col get_left_matrix_col, char right_data_type, int right_matrix_width, int right_matrix_height, void* right_matrix, matrix_get_col get_right_matrix_col, matrix_constructor constructor, void** result_matrix)
 {
   if (left_matrix_width != right_matrix_width || left_matrix_height != right_matrix_height) {
-    return mop_errno_dimension;
+    return mop_errno_dimension_incompatible;
   }
   const int result_matrix_width = left_matrix_width;
   const int result_matrix_height = left_matrix_height;
@@ -104,7 +131,7 @@ enum mop_errno_t matrix_add(char left_data_type, int left_matrix_width, int left
 
 enum mop_errno_t matrix_multiply(char left_data_type, int left_matrix_width, int left_matrix_height, void* left_matrix, matrix_get_row get_left_matrix_row, char right_data_type, int right_matrix_width, int right_matrix_height, void* right_matrix, matrix_get_col get_right_matrix_col, matrix_constructor constructor, void** result_matrix) {
   if (right_matrix_height != left_matrix_width) {
-    return mop_errno_dimension;
+    return mop_errno_dimension_incompatible;
   }
   const int result_matrix_width = right_matrix_width;
   const int result_matrix_height = left_matrix_height;

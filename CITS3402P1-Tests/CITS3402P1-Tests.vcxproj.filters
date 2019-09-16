@@ -47,5 +47,13 @@
     <None Include="float_4x4.in">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="int_2x2.in">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="float_1x5.in">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

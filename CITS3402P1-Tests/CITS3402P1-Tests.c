@@ -307,7 +307,7 @@ START_TEST(matrix_op_mul_invalid_dimensions)
     &coo_matrix_constructor,
     &result
   );
-  ck_assert_int_eq(error, mop_errno_dimension);
+  ck_assert_int_eq(error, mop_errno_dimension_incompatible);
 }
 END_TEST
 
@@ -355,6 +355,74 @@ START_TEST(matrix_op_add_mixed_square)
 }
 END_TEST
 
+START_TEST(matrix_op_transpose_int_square)
+{
+  char data_type;
+  int n_cols, n_rows;
+  void* values = read_file("int_2x2.in", &data_type, &n_rows, &n_cols);
+  struct csc_matrix* m = csc_matrix_constructor(data_type, n_cols, n_rows, values);
+  struct coo_matrix* m_transposed;
+  enum mop_errno_t error = matrix_transpose(data_type, n_cols, n_rows, m, &csc_matrix_get_col, coo_matrix_constructor, &m_transposed);
+  ck_assert_int_eq(error, mop_errno_ok);
+  ck_assert_int_eq(m_transposed->width, 2);
+  ck_assert_int_eq(m_transposed->height, 2);
+  ck_assert_int_eq(m_transposed->n_triples, 4);
+  ck_assert_int_eq(m_transposed->data_type, DATA_TYPE_INTEGER);
+
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 0).col_i, 0);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 0).row_i, 0);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 0).value.i, 1);
+
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 1).col_i, 1);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 1).row_i, 0);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 1).value.i, 2);
+
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 2).col_i, 0);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 2).row_i, 1);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 2).value.i, 1);
+
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 3).col_i, 1);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 3).row_i, 1);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 3).value.i, 2);
+}
+END_TEST
+
+START_TEST(matrix_op_transpose_float_rectangluar)
+{
+  char data_type;
+  int n_cols, n_rows;
+  void* values = read_file("float_1x5.in", &data_type, &n_rows, &n_cols);
+  struct csc_matrix* m = csc_matrix_constructor(data_type, n_cols, n_rows, values);
+  struct coo_matrix* m_transposed;
+  enum mop_errno_t error = matrix_transpose(data_type, n_cols, n_rows, m, &csc_matrix_get_col, coo_matrix_constructor, &m_transposed);
+  ck_assert_int_eq(error, mop_errno_ok);
+  ck_assert_int_eq(m_transposed->width, 1);
+  ck_assert_int_eq(m_transposed->height, 5);
+  ck_assert_int_eq(m_transposed->n_triples, 5);
+  ck_assert_int_eq(m_transposed->data_type, DATA_TYPE_FLOAT);
+
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 0).col_i, 0);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 0).row_i, 0);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 0).value.f, -1.0);
+
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 1).col_i, 0);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 1).row_i, 1);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 1).value.f, 2);
+
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 2).col_i, 0);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 2).row_i, 2);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 2).value.f, -3.0);
+
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 3).col_i, 0);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 3).row_i, 3);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 3).value.f, 4);
+
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 4).col_i, 0);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 4).row_i, 4);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 4).value.f, -5.0);
+}
+END_TEST
+
 int main(void)
 {
   TCase* matrix_constructors_test_case = tcase_create("Matrix Constructors");
@@ -372,6 +440,8 @@ int main(void)
   tcase_add_test(matrix_ops_test_case, matrix_op_mul_invalid_dimensions);
   tcase_add_test(matrix_ops_test_case, matrix_op_mul_int_rectangular);
   tcase_add_test(matrix_ops_test_case, matrix_op_add_mixed_square);
+  tcase_add_test(matrix_ops_test_case, matrix_op_transpose_int_square);
+  tcase_add_test(matrix_ops_test_case, matrix_op_transpose_float_rectangluar);
 
   Suite* project_test_suite = suite_create("Project Test Suite");
   suite_add_tcase(project_test_suite, matrix_constructors_test_case);
