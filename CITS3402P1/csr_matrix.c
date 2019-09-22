@@ -64,7 +64,7 @@ union matrix_value* csr_matrix_get_row(int row_i, struct csr_matrix* csr_matrix)
   int n_non_zeros_before_row = csr_matrix->cnzs[row_i];
   int n_non_zeros_before_next_row = csr_matrix->cnzs[row_i+ 1];
 
-  union matrix_value* row_values = (int*)calloc(csr_matrix->width, sizeof(union matrix_value));
+  union matrix_value* row_values = (union matrix_value*)calloc(csr_matrix->width, sizeof(union matrix_value));
   for (int x = n_non_zeros_before_row; x < n_non_zeros_before_next_row; x++) {
     int col_index = csr_matrix->col_is[x];
     if (csr_matrix->data_type == DATA_TYPE_INTEGER) {

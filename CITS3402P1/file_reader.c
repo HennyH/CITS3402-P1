@@ -25,5 +25,24 @@ union matrix_value* read_file(char* filename, char* out_data_type, int* out_n_ro
     }
   }
 
+  fclose(in_file);
   return values;
+}
+
+
+/* Based off https://stackoverflow.com/questions/14002954/c-programming-how-to-read-the-whole-file-contents-into-a-buffer */
+char* read_all(char* filename) {
+  FILE* file;
+  fopen_s(&file, filename, "r");
+  fseek(file, 0, SEEK_END);
+  long n_bytes = ftell(file);
+  rewind(file);
+
+  char* content = (char*)calloc(n_bytes, sizeof(char));
+  fread(content, sizeof(char), n_bytes, file);
+  fclose(file);
+
+  content[n_bytes] = 0;
+
+  return content;
 }

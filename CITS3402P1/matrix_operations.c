@@ -9,7 +9,7 @@
 
 enum mop_errno_t matrix_scalar_multiply(char data_type, float a, void* matrix, int width, int height, matrix_get_col get_col, matrix_constructor constructor, void** result_matrix)
 {
-  union matrix_value* result_values = (int*)malloc(sizeof(union matrix_value) * width * height);
+  union matrix_value* result_values = (union matrix_value*)calloc(width * height, sizeof(union matrix_value));
 
   for (int col_i = 0; col_i < width; col_i++)
   {
@@ -21,8 +21,7 @@ enum mop_errno_t matrix_scalar_multiply(char data_type, float a, void* matrix, i
       int row_i = 0;
 #pragma omp for
       for (row_i = 0; row_i < height; row_i++) {
-        set_zero_matrix_value(DATA_TYPE_FLOAT, &result_values[col_i * height + row_i]);
-        result_values[col_i * width + row_i].f = a * (data_type == DATA_TYPE_INTEGER ? column[row_i].i : column[row_i].f);
+        result_values[col_i * width + row_i].f = a * (data_type == DATA_TYPE_INTEGER ? (float)column[row_i].i : column[row_i].f);
       }
     }
   }
@@ -65,7 +64,7 @@ enum mop_errno_t matrix_transpose(char data_type, int width, int height, void* m
     return mop_errno_argument_invalid;
   }
 
-  union matrix_value* result_values = calloc(sizeof(union matrix_value), width * height);
+  union matrix_value* result_values = (union matrix_value*)calloc(width * height, sizeof(union matrix_value));
   /* What's going on here is that we allow the user to provide either a method of providing ROWS xor COLUMNS.
    * depending on what they give we will either transpose the matrix via changing rows->columns xor columns->rows.
    * We allow this to improve memory access patterns on matrices that are significantly wider or taller than they are tall or wide
@@ -108,9 +107,10 @@ enum mop_errno_t matrix_add(char left_data_type, int left_matrix_width, int left
   if (left_matrix_width != right_matrix_width || left_matrix_height != right_matrix_height) {
     return mop_errno_dimension_incompatible;
   }
+
   const int result_matrix_width = left_matrix_width;
   const int result_matrix_height = left_matrix_height;
-  union matrix_value* result_values = (union matrix_value*)calloc(sizeof(union matrix_value), result_matrix_width * result_matrix_height);
+  union matrix_value* result_values = (union matrix_value*)calloc(result_matrix_width * result_matrix_height, sizeof(union matrix_value));
   const char result_data_type = left_data_type == DATA_TYPE_FLOAT || right_data_type == DATA_TYPE_FLOAT ? DATA_TYPE_FLOAT : DATA_TYPE_INTEGER;
 
   for (int col_i = 0; col_i < result_matrix_width; col_i++)

@@ -9,32 +9,19 @@
 #include "csc_matrix.h"
 #include "csr_matrix.h"
 #include "matrix_operations.h"
+#include "cli_parser.h"
 
 
-int main()
+int main(int argc, char *argv[], char** envp)
 {
-
-
-  float a[] = {
-    1.0,1.0,
-    2.0,2.0,
-    3.0,3.0
-  };
-  float b[] = {
-    1.0,
-    2.0
-  };
-  struct csr_matrix* lm = csr_matrix_constructor('f', 2, 3, a);
-  struct csc_matrix* rm = csc_matrix_constructor('f', 1, 2, b);
-  struct coo_matrix* r;
-  enum mop_errno_t error = matrix_multiply(
-    'f', 2, 3, lm, &csr_matrix_get_row,
-    'f', 1, 2, rm, &csc_matrix_get_col,
-    &coo_matrix_constructor,
-    &r
-  );
-  struct coo_triple* triples = r->triples;
-  printf("Hello world");
+  char* operation = calloc(3, sizeof(char));
+  float sm_multiple;
+  char* input_file_1 = calloc(1025, sizeof(char));
+  char* input_file_2 = calloc(1025, sizeof(char));
+  int n_threads;
+  int log;
+  parse_cli_args(argc, argv, envp, operation, &sm_multiple, input_file_1, input_file_2, &n_threads, &log);
+  return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

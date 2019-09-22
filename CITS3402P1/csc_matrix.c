@@ -63,7 +63,7 @@ union matrix_value* csc_matrix_get_col(int col_i, struct csc_matrix* csc_matrix)
   int n_non_zeros_before_col = csc_matrix->cnzs[col_i];
   int n_non_zeros_before_next_col = csc_matrix->cnzs[col_i + 1];
 
-  union matrix_value* col_values = (int*)calloc(csc_matrix->height, sizeof(union matrix_value));
+  union matrix_value* col_values = (union matrix_value*)calloc(csc_matrix->height, sizeof(union matrix_value));
   for (int x = n_non_zeros_before_col; x < n_non_zeros_before_next_col; x++) {
     int row_index = csc_matrix->row_is[x];
     if (csc_matrix->data_type == DATA_TYPE_INTEGER) {
