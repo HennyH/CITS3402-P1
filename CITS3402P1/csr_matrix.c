@@ -68,10 +68,10 @@ union matrix_value* csr_matrix_get_row(int row_i, struct csr_matrix* csr_matrix)
   for (int x = n_non_zeros_before_row; x < n_non_zeros_before_next_row; x++) {
     int col_index = csr_matrix->col_is[x];
     if (csr_matrix->data_type == DATA_TYPE_INTEGER) {
-      row_values[col_index].i = ((int*)csr_matrix->vals)[x];
+      row_values[col_index].i = (csr_matrix->vals)[x].i;
     }
     else {
-      row_values[col_index].f = ((float*)csr_matrix->vals)[x];
+      row_values[col_index].d = (csr_matrix->vals)[x].d;
     }
   }
 

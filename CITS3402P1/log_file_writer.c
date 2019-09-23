@@ -44,12 +44,12 @@ void log_file_write_header(FILE* log_file, char* operation, char* input_filename
 }
 
 void log_file_write_footer(FILE* log_file, time_t load_time, time_t calc_time) {
-  fprintf_s(log_file, "%f\n", (float)load_time / (float)CLOCKS_PER_SEC);
-  fprintf_s(log_file, "%f\n", (float)calc_time / (float)CLOCKS_PER_SEC);
+  fprintf_s(log_file, "%f\n", (double)load_time / (double)CLOCKS_PER_SEC);
+  fprintf_s(log_file, "%f\n", (double)calc_time / (double)CLOCKS_PER_SEC);
 }
 
 void log_file_write_matrix(FILE* log_file, int value_limit, char data_type, int width, int height, void* matrix, matrix_get_row get_row) {
-  fprintf_s(log_file, "%s\n", data_type == DATA_TYPE_INTEGER ? "int" : "float");
+  fprintf_s(log_file, "%s\n", data_type == DATA_TYPE_INTEGER ? "int" : "double");
   fprintf_s(log_file, "%d\n", width);
   fprintf_s(log_file, "%d\n", height);
 
@@ -63,7 +63,7 @@ void log_file_write_matrix(FILE* log_file, int value_limit, char data_type, int 
         fprintf_s(log_file, "%d", value.i);
       }
       else {
-        fprintf_s(log_file, "%f", value.f);
+        fprintf_s(log_file, "%lf", value.d);
       }
 
       int i = row_i * width + col_i;
@@ -84,8 +84,8 @@ void log_file_write_matrix(FILE* log_file, int value_limit, char data_type, int 
 }
 
 void log_file_write_value(FILE* log_file, char data_type, union matrix_value value) {
-  if (data_type == DATA_TYPE_FLOAT) {
-    fprintf_s(log_file, "%f\n", value.f);
+  if (data_type == DATA_TYPE_DOUBLE) {
+    fprintf_s(log_file, "%lf\n", value.d);
   }
   else {
     fprintf_s(log_file, "%d\n", value.i);

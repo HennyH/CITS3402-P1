@@ -7,6 +7,7 @@
 #include <string.h>
 #include <time.h>
 #include <check.h>
+#include <omp.h>
 #include "../CITS3402P1/matrix.h"
 #include "../CITS3402P1/coo_matrix.h"
 #include "../CITS3402P1/csc_matrix.h"
@@ -91,32 +92,32 @@ END_TEST
 START_TEST(coo_matrix_constructor_floats)
 {
   union matrix_value values[] = {
-    {.f = 1.0}, {.f = 2.0},
-    {.f = 3.0}, {.f = 0.0},
-    {.f = 0.0}, {.f = 6.0}
+    {.d = 1.0}, {.d = 2.0},
+    {.d = 3.0}, {.d = 0.0},
+    {.d = 0.0}, {.d = 6.0}
   };
-  struct coo_matrix* m = coo_matrix_constructor(DATA_TYPE_FLOAT, 2, 3, values);
+  struct coo_matrix* m = coo_matrix_constructor(DATA_TYPE_DOUBLE, 2, 3, values);
   ck_assert_int_eq(m->width, 2);
   ck_assert_int_eq(m->height, 3);
   ck_assert_int_eq(m->n_triples, 4);
-  ck_assert_int_eq(m->data_type, DATA_TYPE_FLOAT);
+  ck_assert_int_eq(m->data_type, DATA_TYPE_DOUBLE);
   /* the COO format should store values left->right, top->bottom */
   /* check (0, 0, 1.0) is first */
   ck_assert_int_eq(coo_matrix_get_triple(m, 0).col_i, 0);
   ck_assert_int_eq(coo_matrix_get_triple(m, 0).row_i, 0);
-  ck_assert_float_eq(coo_matrix_get_triple(m, 0).value.f, 1.0);
+  ck_assert_double_eq(coo_matrix_get_triple(m, 0).value.d, 1.0);
   /* check (1, 0, 2.0) is second */
   ck_assert_int_eq(coo_matrix_get_triple(m, 1).col_i, 1);
   ck_assert_int_eq(coo_matrix_get_triple(m, 1).row_i, 0);
-  ck_assert_float_eq(coo_matrix_get_triple(m, 1).value.f, 2.0);
+  ck_assert_double_eq(coo_matrix_get_triple(m, 1).value.d, 2.0);
   /* check (0, 1, 3.0) is third */
   ck_assert_int_eq(coo_matrix_get_triple(m, 2).col_i, 0);
   ck_assert_int_eq(coo_matrix_get_triple(m, 2).row_i, 1);
-  ck_assert_float_eq(coo_matrix_get_triple(m, 2).value.f, 3.0);
+  ck_assert_double_eq(coo_matrix_get_triple(m, 2).value.d, 3.0);
   /* check (1, 2, 6.0) is fourth */
   ck_assert_int_eq(coo_matrix_get_triple(m, 3).col_i, 1);
   ck_assert_int_eq(coo_matrix_get_triple(m, 3).row_i, 2);
-  ck_assert_float_eq(coo_matrix_get_triple(m, 3).value.f, 6.0);
+  ck_assert_double_eq(coo_matrix_get_triple(m, 3).value.d, 6.0);
 }
 END_TEST
 
@@ -233,25 +234,25 @@ START_TEST(file_reader_reads_float1)
   char data_type;
   int n_rows, n_cols;
   union matrix_value* values = read_file("./inputs/float_4x4.in", &data_type, &n_rows, &n_cols);
-  ck_assert_int_eq(data_type, DATA_TYPE_FLOAT);
+  ck_assert_int_eq(data_type, DATA_TYPE_DOUBLE);
   ck_assert_int_eq(n_rows, 4);
   ck_assert_int_eq(n_cols, 4);
-  ck_assert_float_eq(values[0].f, 1.0);
-  ck_assert_float_eq(values[1].f, 0.0);
-  ck_assert_float_eq(values[2].f, 0.0);
-  ck_assert_float_eq(values[3].f, 0.0);
-  ck_assert_float_eq(values[4].f, 0.0);
-  ck_assert_float_eq(values[5].f, 0.0);
-  ck_assert_float_eq(values[6].f, 0.0);
-  ck_assert_float_eq(values[7].f, 0.0);
-  ck_assert_float_eq(values[8].f, 0.0);
-  ck_assert_float_eq(values[9].f, 1.0);
-  ck_assert_float_eq(values[10].f, 0.5);
-  ck_assert_float_eq(values[11].f, 0.0);
-  ck_assert_float_eq(values[12].f, 0.0);
-  ck_assert_float_eq(values[13].f, 0.0);
-  ck_assert_float_eq(values[14].f, 0.0);
-  ck_assert_float_eq(values[15].f, 0.75);
+  ck_assert_double_eq(values[0].d, 1.0);
+  ck_assert_double_eq(values[1].d, 0.0);
+  ck_assert_double_eq(values[2].d, 0.0);
+  ck_assert_double_eq(values[3].d, 0.0);
+  ck_assert_double_eq(values[4].d, 0.0);
+  ck_assert_double_eq(values[5].d, 0.0);
+  ck_assert_double_eq(values[6].d, 0.0);
+  ck_assert_double_eq(values[7].d, 0.0);
+  ck_assert_double_eq(values[8].d, 0.0);
+  ck_assert_double_eq(values[9].d, 1.0);
+  ck_assert_double_eq(values[10].d, 0.5);
+  ck_assert_double_eq(values[11].d, 0.0);
+  ck_assert_double_eq(values[12].d, 0.0);
+  ck_assert_double_eq(values[13].d, 0.0);
+  ck_assert_double_eq(values[14].d, 0.0);
+  ck_assert_double_eq(values[15].d, 0.75);
 }
 END_TEST
 
@@ -279,23 +280,23 @@ START_TEST(matrix_op_mul_mixed_square_matrix)
   ck_assert_int_eq(result->width, 4);
   ck_assert_int_eq(result->height, 4);
   ck_assert_int_eq(result->n_triples, 4);
-  ck_assert_int_eq(result->data_type, DATA_TYPE_FLOAT);
+  ck_assert_int_eq(result->data_type, DATA_TYPE_DOUBLE);
 
   ck_assert_int_eq(coo_matrix_get_triple(result, 0).col_i, 0);
   ck_assert_int_eq(coo_matrix_get_triple(result, 0).row_i, 0);
-  ck_assert_float_eq(coo_matrix_get_triple(result, 0).value.f, 1.0);
+  ck_assert_double_eq(coo_matrix_get_triple(result, 0).value.d, 1.0);
 
   ck_assert_int_eq(coo_matrix_get_triple(result, 1).col_i, 1);
   ck_assert_int_eq(coo_matrix_get_triple(result, 1).row_i, 2);
-  ck_assert_float_eq(coo_matrix_get_triple(result, 1).value.f, 1.0);
+  ck_assert_double_eq(coo_matrix_get_triple(result, 1).value.d, 1.0);
   
   ck_assert_int_eq(coo_matrix_get_triple(result, 2).col_i, 2);
   ck_assert_int_eq(coo_matrix_get_triple(result, 2).row_i, 2);
-  ck_assert_float_eq(coo_matrix_get_triple(result, 2).value.f, 0.5);
+  ck_assert_double_eq(coo_matrix_get_triple(result, 2).value.d, 0.5);
   
   ck_assert_int_eq(coo_matrix_get_triple(result, 3).col_i, 3);
   ck_assert_int_eq(coo_matrix_get_triple(result, 3).row_i, 3);
-  ck_assert_float_eq(coo_matrix_get_triple(result, 3).value.f, 0.75);
+  ck_assert_double_eq(coo_matrix_get_triple(result, 3).value.d, 0.75);
 }
 END_TEST
 
@@ -390,27 +391,27 @@ START_TEST(matrix_op_add_mixed_square)
   ck_assert_int_eq(result->width, 4);
   ck_assert_int_eq(result->height, 4);
   ck_assert_int_eq(result->n_triples, 5);
-  ck_assert_int_eq(result->data_type, DATA_TYPE_FLOAT);
+  ck_assert_int_eq(result->data_type, DATA_TYPE_DOUBLE);
 
   ck_assert_int_eq(coo_matrix_get_triple(result, 0).col_i, 0);
   ck_assert_int_eq(coo_matrix_get_triple(result, 0).row_i, 0);
-  ck_assert_float_eq(coo_matrix_get_triple(result, 0).value.f, 2.0);
+  ck_assert_double_eq(coo_matrix_get_triple(result, 0).value.d, 2.0);
 
   ck_assert_int_eq(coo_matrix_get_triple(result, 1).col_i, 1);
   ck_assert_int_eq(coo_matrix_get_triple(result, 1).row_i, 1);
-  ck_assert_float_eq(coo_matrix_get_triple(result, 1).value.f, 1.0);
+  ck_assert_double_eq(coo_matrix_get_triple(result, 1).value.d, 1.0);
 
   ck_assert_int_eq(coo_matrix_get_triple(result, 2).col_i, 1);
   ck_assert_int_eq(coo_matrix_get_triple(result, 2).row_i, 2);
-  ck_assert_float_eq(coo_matrix_get_triple(result, 2).value.f, 1.0);
+  ck_assert_double_eq(coo_matrix_get_triple(result, 2).value.d, 1.0);
 
   ck_assert_int_eq(coo_matrix_get_triple(result, 3).col_i, 2);
   ck_assert_int_eq(coo_matrix_get_triple(result, 3).row_i, 2);
-  ck_assert_float_eq(coo_matrix_get_triple(result, 3).value.f, 1.5);
+  ck_assert_double_eq(coo_matrix_get_triple(result, 3).value.d, 1.5);
 
   ck_assert_int_eq(coo_matrix_get_triple(result, 4).col_i, 3);
   ck_assert_int_eq(coo_matrix_get_triple(result, 4).row_i, 3);
-  ck_assert_float_eq(coo_matrix_get_triple(result, 4).value.f, 1.75);
+  ck_assert_double_eq(coo_matrix_get_triple(result, 4).value.d, 1.75);
 }
 END_TEST
 
@@ -462,27 +463,27 @@ START_TEST(matrix_op_transpose_float_rectangluar)
   ck_assert_int_eq(m_transposed->width, 1);
   ck_assert_int_eq(m_transposed->height, 5);
   ck_assert_int_eq(m_transposed->n_triples, 5);
-  ck_assert_int_eq(m_transposed->data_type, DATA_TYPE_FLOAT);
+  ck_assert_int_eq(m_transposed->data_type, DATA_TYPE_DOUBLE);
 
   ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 0).col_i, 0);
   ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 0).row_i, 0);
-  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 0).value.f, -1.0);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 0).value.d, -1.0);
 
   ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 1).col_i, 0);
   ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 1).row_i, 1);
-  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 1).value.f, 2);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 1).value.d, 2);
 
   ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 2).col_i, 0);
   ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 2).row_i, 2);
-  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 2).value.f, -3.0);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 2).value.d, -3.0);
 
   ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 3).col_i, 0);
   ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 3).row_i, 3);
-  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 3).value.f, 4);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 3).value.d, 4);
 
   ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 4).col_i, 0);
   ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 4).row_i, 4);
-  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 4).value.f, -5.0);
+  ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 4).value.d, -5.0);
 }
 END_TEST
 
@@ -502,7 +503,7 @@ START_TEST(cli_args_tr)
   parse_cli_args(argc, argv, envp, &operation, &sm_multiple, &input_file_1, &input_file_2, &n_threads, &log);
 
   ck_assert_str_eq(operation, "tr");
-  ck_assert_float_eq(sm_multiple, 2.0);
+  ck_assert_double_eq(sm_multiple, 2.0);
   ck_assert_str_eq(input_file_1, "matrix1.in");
   ck_assert_ptr_null(input_file_2);
   ck_assert_int_eq(n_threads, NULL);
@@ -526,7 +527,7 @@ START_TEST(cli_args_ts)
   parse_cli_args(argc, argv, envp, &operation, &sm_multiple, &input_file_1, &input_file_2, &n_threads, &log);
 
   ck_assert_str_eq(operation, "ts");
-  ck_assert_float_eq(sm_multiple, 2.0);
+  ck_assert_double_eq(sm_multiple, 2.0);
   ck_assert_str_eq(input_file_1, "matrix1.in");
   ck_assert_ptr_null(input_file_2);
   ck_assert_int_eq(n_threads, 3);
@@ -550,7 +551,7 @@ START_TEST(cli_args_sm)
   parse_cli_args(argc, argv, envp, &operation, &sm_multiple, &input_file_1, &input_file_2, &n_threads, &log);
 
   ck_assert_str_eq(operation, "sm");
-  ck_assert_float_eq(sm_multiple, 2.0);
+  ck_assert_double_eq(sm_multiple, 2.0);
   ck_assert_str_eq(input_file_1, "matrix1.in");
   ck_assert_ptr_null(input_file_2);
   ck_assert_int_eq(n_threads, NULL);
@@ -574,7 +575,7 @@ START_TEST(cli_args_ad)
   parse_cli_args(argc, argv, envp, &operation, &sm_multiple, &input_file_1, &input_file_2, &n_threads, &log);
 
   ck_assert_str_eq(operation, "ad");
-  ck_assert_float_eq(sm_multiple, 2.0);
+  ck_assert_double_eq(sm_multiple, 2.0);
   ck_assert_str_eq(input_file_1, "matrix1.in");
   ck_assert_str_eq(input_file_2, "matrix2.in");
   ck_assert_int_eq(n_threads, 5);
@@ -598,7 +599,7 @@ START_TEST(cli_args_mm)
   parse_cli_args(argc, argv, envp, &operation, &sm_multiple, &input_file_1, &input_file_2, &n_threads, &log);
 
   ck_assert_str_eq(operation, "mm");
-  ck_assert_float_eq(sm_multiple, 2.0);
+  ck_assert_double_eq(sm_multiple, 2.0);
   ck_assert_str_eq(input_file_1, "matrix1.in");
   ck_assert_str_eq(input_file_2, "./matrix2.in");
   ck_assert_int_eq(n_threads, 2);
@@ -634,51 +635,53 @@ int main(void)
   tcase_add_test(cli_parser_test_case, cli_args_mm);
 
   TCase* spec_test_case = tcase_create("Spec Tests");
-  tcase_add_test(spec_test_case, spec_test_ad_float1024_float1024);
+  omp_set_num_threads(1);
+  //tcase_add_test(spec_test_case, spec_test_ad_float1024_float1024);
+  //tcase_add_test(spec_test_case, spec_test_mm_int1024_int1024);
+  //tcase_add_test(spec_test_case, spec_test_sm_float1024);
+  //tcase_add_test(spec_test_case, spec_test_tr_float1024);
+  //tcase_add_test(spec_test_case, spec_test_ts_float1024);
+  //tcase_add_test(spec_test_case, spec_test_ts_int1024);
+  //tcase_add_test(spec_test_case, spec_test_tr_int1024);
+  //tcase_add_test(spec_test_case, spec_test_sm_int1024);
+
+  tcase_add_test(spec_test_case, spec_test_ad_int1024_int1024);
+  tcase_add_test(spec_test_case, spec_test_mm_float1024_float1024);
   tcase_add_test(spec_test_case, spec_test_ad_float128_float128);
   tcase_add_test(spec_test_case, spec_test_ad_float256_float256);
   tcase_add_test(spec_test_case, spec_test_ad_float64_float64);
-  tcase_add_test(spec_test_case, spec_test_ad_int1024_int1024);
   tcase_add_test(spec_test_case, spec_test_ad_int128_int128);
   tcase_add_test(spec_test_case, spec_test_ad_int256_int256);
   tcase_add_test(spec_test_case, spec_test_ad_int64_int64);
-  tcase_add_test(spec_test_case, spec_test_mm_float1024_float1024);
   tcase_add_test(spec_test_case, spec_test_mm_float128_float128);
   tcase_add_test(spec_test_case, spec_test_mm_float256_float256);
   tcase_add_test(spec_test_case, spec_test_mm_float64_float64);
-  tcase_add_test(spec_test_case, spec_test_mm_int1024_int1024);
   tcase_add_test(spec_test_case, spec_test_mm_int128_int128);
   tcase_add_test(spec_test_case, spec_test_mm_int256_int256);
   tcase_add_test(spec_test_case, spec_test_mm_int64_int64);
-  tcase_add_test(spec_test_case, spec_test_sm_float1024);
   tcase_add_test(spec_test_case, spec_test_sm_float128);
   tcase_add_test(spec_test_case, spec_test_sm_float256);
   tcase_add_test(spec_test_case, spec_test_sm_float64);
-  tcase_add_test(spec_test_case, spec_test_sm_int1024);
   tcase_add_test(spec_test_case, spec_test_sm_int128);
   tcase_add_test(spec_test_case, spec_test_sm_int256);
   tcase_add_test(spec_test_case, spec_test_sm_int64);
-  tcase_add_test(spec_test_case, spec_test_tr_float1024);
   tcase_add_test(spec_test_case, spec_test_tr_float128);
   tcase_add_test(spec_test_case, spec_test_tr_float256);
   tcase_add_test(spec_test_case, spec_test_tr_float64);
-  tcase_add_test(spec_test_case, spec_test_tr_int1024);
   tcase_add_test(spec_test_case, spec_test_tr_int128);
   tcase_add_test(spec_test_case, spec_test_tr_int256);
   tcase_add_test(spec_test_case, spec_test_tr_int64);
-  tcase_add_test(spec_test_case, spec_test_ts_float1024);
   tcase_add_test(spec_test_case, spec_test_ts_float128);
   tcase_add_test(spec_test_case, spec_test_ts_float256);
   tcase_add_test(spec_test_case, spec_test_ts_float64);
-  tcase_add_test(spec_test_case, spec_test_ts_int1024);
   tcase_add_test(spec_test_case, spec_test_ts_int128);
   tcase_add_test(spec_test_case, spec_test_ts_int256);
 
   Suite* project_test_suite = suite_create("Project Test Suite");
-  suite_add_tcase(project_test_suite, matrix_constructors_test_case);
+  /*suite_add_tcase(project_test_suite, matrix_constructors_test_case);
   suite_add_tcase(project_test_suite, file_reader_test_case);
   suite_add_tcase(project_test_suite, matrix_ops_test_case);
-  suite_add_tcase(project_test_suite, cli_parser_test_case);
+  suite_add_tcase(project_test_suite, cli_parser_test_case);*/
   suite_add_tcase(project_test_suite, spec_test_case);
 
   SRunner* runner = srunner_create(project_test_suite);

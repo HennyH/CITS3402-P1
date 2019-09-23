@@ -15,13 +15,13 @@ union matrix_value* read_file(char* filename, char* out_data_type, int* out_n_ro
   fscanf_s(in_file, "%i", out_n_cols);
 
   int n_values = (*out_n_rows) * (*out_n_cols);
-  union matrix_value* values = malloc(sizeof(union matrix_value) * n_values);
+  union matrix_value* values = calloc(n_values, sizeof(union matrix_value));
   for (int i = 0; i < n_values; i++) {
     if (*out_data_type == DATA_TYPE_INTEGER) {
       fscanf_s(in_file, "%d", &(values[i].i));
     }
     else {
-      fscanf_s(in_file, "%f", &(values[i].f));
+      fscanf_s(in_file, "%lf", &(values[i].d));
     }
   }
 

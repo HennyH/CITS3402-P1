@@ -9,7 +9,7 @@
 #include "csc_matrix.h"
 #include "matrix_operations.h"
 
-enum mop_errno_t matrix_scalar_multiply(char data_type, float a, void* matrix, int width, int height, matrix_get_col get_col, matrix_constructor constructor, void** result_matrix, char* result_data_type, clock_t* elapsed)
+enum mop_errno_t matrix_scalar_multiply(char data_type, double a, void* matrix, int width, int height, matrix_get_col get_col, matrix_constructor constructor, void** result_matrix, char* result_data_type, clock_t* elapsed)
 {
   union matrix_value* result_values = (union matrix_value*)calloc(width * height, sizeof(union matrix_value));
 
@@ -25,7 +25,7 @@ enum mop_errno_t matrix_scalar_multiply(char data_type, float a, void* matrix, i
       int row_i = 0;
 #pragma omp for
       for (row_i = 0; row_i < height; row_i++) {
-        union matrix_value cell_value = { .f = a * (data_type == DATA_TYPE_INTEGER ? (float)column[row_i].i : column[row_i].f) };
+        union matrix_value cell_value = { .d = a * (data_type == DATA_TYPE_INTEGER ? (double)column[row_i].i : column[row_i].d) };
         set_ltr_ttb_value(row_i, col_i, width, height, cell_value, result_values);
       }
     }
@@ -35,7 +35,7 @@ enum mop_errno_t matrix_scalar_multiply(char data_type, float a, void* matrix, i
   *elapsed = end - start;
 
   *result_matrix = constructor('f', width, height, result_values);
-  *result_data_type = DATA_TYPE_FLOAT;
+  *result_data_type = DATA_TYPE_DOUBLE;
   free(result_values);
   return mop_errno_ok;
 }
@@ -43,20 +43,20 @@ enum mop_errno_t matrix_scalar_multiply(char data_type, float a, void* matrix, i
 enum mop_errno_t matrix_trace(char data_type, struct coo_matrix* coo_matrix, union matrix_value* trace, char* result_data_type, clock_t* elapsed)
 {
   int i;
-  float trace_f = 0;
+  double trace_d = 0;
   int trace_i = 0;
   int n_values = coo_matrix->n_triples;
 
   clock_t start = clock();
 
-#pragma omp parallel for shared(coo_matrix) reduction(+: trace_f) reduction(+: trace_i)
+#pragma omp parallel for shared(coo_matrix) reduction(+: trace_d) reduction(+: trace_i)
   for (i = 0; i < n_values; i++) {
     if (coo_matrix->triples[i].row_i == coo_matrix->triples[i].col_i) {
       if (data_type == DATA_TYPE_INTEGER) {
         trace_i += coo_matrix->triples[i].value.i;
       }
       else {
-        trace_f += coo_matrix->triples[i].value.f;
+        trace_d += coo_matrix->triples[i].value.d;
       }
     }
   }
@@ -64,9 +64,9 @@ enum mop_errno_t matrix_trace(char data_type, struct coo_matrix* coo_matrix, uni
   clock_t end = clock();
   *elapsed = end - start;
 
-  if (data_type == DATA_TYPE_FLOAT) {
-    *result_data_type = DATA_TYPE_FLOAT;
-    trace->f = trace_f;
+  if (data_type == DATA_TYPE_DOUBLE) {
+    *result_data_type = DATA_TYPE_DOUBLE;
+    trace->d = trace_d;
   }
   else {
     *result_data_type = DATA_TYPE_INTEGER;
@@ -135,7 +135,7 @@ enum mop_errno_t matrix_add(char left_data_type, int left_matrix_width, int left
   const int result_matrix_width = left_matrix_width;
   const int result_matrix_height = left_matrix_height;
   union matrix_value* result_values = (union matrix_value*)calloc(result_matrix_width * result_matrix_height, sizeof(union matrix_value));
-  *result_data_type = left_data_type == DATA_TYPE_FLOAT || right_data_type == DATA_TYPE_FLOAT ? DATA_TYPE_FLOAT : DATA_TYPE_INTEGER;
+  *result_data_type = left_data_type == DATA_TYPE_DOUBLE || right_data_type == DATA_TYPE_DOUBLE ? DATA_TYPE_DOUBLE : DATA_TYPE_INTEGER;
 
   clock_t start = clock();
 
@@ -153,10 +153,10 @@ enum mop_errno_t matrix_add(char left_data_type, int left_matrix_width, int left
       int row_i = 0;
 #pragma omp for
       for (row_i = 0; row_i < result_matrix_height; row_i++) {
-        union matrix_value col_row_sum = { .i = 0, .f = 0 };
-        if (*result_data_type == DATA_TYPE_FLOAT) {
-          col_row_sum.f = (float)(left_data_type== DATA_TYPE_FLOAT ? left_column[row_i].f : left_column[row_i].i) +
-              (float)(right_data_type == DATA_TYPE_FLOAT ? right_column[row_i].f : right_column[row_i].i);
+        union matrix_value col_row_sum = { .i = 0, .d = 0 };
+        if (*result_data_type == DATA_TYPE_DOUBLE) {
+          col_row_sum.d = (double)(left_data_type== DATA_TYPE_DOUBLE ? left_column[row_i].d : left_column[row_i].i) +
+              (double)(right_data_type == DATA_TYPE_DOUBLE ? right_column[row_i].d : right_column[row_i].i);
         }
         else {
           /* if the result type is 'int' then we must be adding two integer matrices! */
@@ -183,7 +183,7 @@ enum mop_errno_t matrix_multiply(char left_data_type, int left_matrix_width, int
   
   const int result_matrix_width = right_matrix_width;
   const int result_matrix_height = left_matrix_height;
-  *result_data_type = left_data_type == DATA_TYPE_FLOAT || right_data_type == DATA_TYPE_FLOAT ? DATA_TYPE_FLOAT : DATA_TYPE_INTEGER;
+  *result_data_type = left_data_type == DATA_TYPE_DOUBLE || right_data_type == DATA_TYPE_DOUBLE ? DATA_TYPE_DOUBLE : DATA_TYPE_INTEGER;
   union matrix_value* result_values = malloc(sizeof(union matrix_value) * result_matrix_width * result_matrix_height);
   union matrix_value* left_matrix_row;
 
@@ -196,17 +196,17 @@ enum mop_errno_t matrix_multiply(char left_data_type, int left_matrix_width, int
 #pragma omp parallel for shared(right_matrix_column, result_values) private(left_matrix_row, i)
     for (left_matrix_row_i = 0; left_matrix_row_i < left_matrix_height; left_matrix_row_i++) {
       left_matrix_row = get_left_matrix_row(left_matrix_row_i, left_matrix);
-      union matrix_value col_row_product_sum = { .i = 0,.f = 0 };
+      union matrix_value col_row_product_sum = { .i = 0,.d = 0 };
       for (int i = 0; i < right_matrix_height; i++) {
-        if (*result_data_type == DATA_TYPE_FLOAT) {
-          col_row_product_sum.f +=
-            (right_data_type == DATA_TYPE_FLOAT ? right_matrix_column[i].f : right_matrix_column[i].i) *
-            (left_data_type == DATA_TYPE_FLOAT ? left_matrix_row[i].f : left_matrix_row[i].i);
+        if (*result_data_type == DATA_TYPE_DOUBLE) {
+          col_row_product_sum.d +=
+            (right_data_type == DATA_TYPE_DOUBLE ? right_matrix_column[i].d : right_matrix_column[i].i) *
+            (left_data_type == DATA_TYPE_DOUBLE ? left_matrix_row[i].d : left_matrix_row[i].i);
         }
         else {
           col_row_product_sum.i +=
-            (right_data_type == DATA_TYPE_FLOAT ? right_matrix_column[i].f : right_matrix_column[i].i) *
-            (left_data_type == DATA_TYPE_FLOAT ? left_matrix_row[i].f : left_matrix_row[i].i);
+            (right_data_type == DATA_TYPE_DOUBLE ? right_matrix_column[i].d : right_matrix_column[i].i) *
+            (left_data_type == DATA_TYPE_DOUBLE ? left_matrix_row[i].d : left_matrix_row[i].i);
         }
       }
 

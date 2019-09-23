@@ -17,7 +17,7 @@
 int main(int argc, char *argv[], char** envp)
 {
   char* operation = NULL;
-  float sm_multiple = 2.0;
+  double sm_multiple = 2.0;
   char* input_file_1 = NULL;
   char* input_file_2 = NULL;
   int n_threads = 0;

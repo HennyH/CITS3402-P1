@@ -3,7 +3,7 @@
     #include <stdlib.h>
     #include <stdio.h>
     #include <string.h>
-    #include <check.h>
+    #include "check.h"
     #include "../CITS3402P1/matrix.h"
     #include "../CITS3402P1/coo_matrix.h"
     #include "../CITS3402P1/csc_matrix.h"
@@ -19,7 +19,7 @@ START_TEST(spec_test_tr_int1024)
     {
         
         char* operation = NULL;
-        float sm_multiple = 2.0;
+        double sm_multiple = 2.0;
         char* input_file_1 = NULL;
         char* input_file_2 = NULL;
         int n_threads = 0;

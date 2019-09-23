@@ -3,7 +3,7 @@
     #include <stdlib.h>
     #include <stdio.h>
     #include <string.h>
-    #include <check.h>
+    #include "check.h"
     #include "../CITS3402P1/matrix.h"
     #include "../CITS3402P1/coo_matrix.h"
     #include "../CITS3402P1/csc_matrix.h"
@@ -19,7 +19,7 @@ START_TEST(spec_test_tr_float256)
     {
         
         char* operation = NULL;
-        float sm_multiple = 2.0;
+        double sm_multiple = 2.0;
         char* input_file_1 = NULL;
         char* input_file_2 = NULL;
         int n_threads = 0;
@@ -39,7 +39,7 @@ START_TEST(spec_test_tr_float256)
     
 
         
-        ck_assert_float_eq_tol(value_result.f, 13558.296461f, 13558.296461f * 0.001f);
+        ck_assert_double_eq_tol(value_result.d, 13558.296461, 1e-6);
         
     }
 END_TEST

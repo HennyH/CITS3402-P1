@@ -67,10 +67,10 @@ union matrix_value* csc_matrix_get_col(int col_i, struct csc_matrix* csc_matrix)
   for (int x = n_non_zeros_before_col; x < n_non_zeros_before_next_col; x++) {
     int row_index = csc_matrix->row_is[x];
     if (csc_matrix->data_type == DATA_TYPE_INTEGER) {
-      col_values[row_index].i = ((int*)csc_matrix->vals)[x];
+      col_values[row_index].i = (csc_matrix->vals)[x].i;
     }
     else {
-      col_values[row_index].f = ((float*)csc_matrix->vals)[x];
+      col_values[row_index].d = (csc_matrix->vals)[x].d;
     }
   }
 

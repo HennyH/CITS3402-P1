@@ -1,17 +1,17 @@
 #pragma once
 
 #define DATA_TYPE_INTEGER 'i'
-#define DATA_TYPE_FLOAT 'f'
+#define DATA_TYPE_DOUBLE 'f'
 
-union matrix_value { int i; float f; };
+union matrix_value { int i; double d; };
 
-inline int count_non_zero_values(char data_type, int width, int height, void* values) {
+inline int count_non_zero_values(char data_type, int width, int height, union matrix_value* values) {
   int n_non_zeros = 0;
   for (int row_i = 0; row_i < height; row_i++) {
     for (int col_i = 0; col_i < width; col_i++) {
       int i = col_i + row_i * width;
-      if ((data_type == DATA_TYPE_INTEGER && ((int*)values)[i] == 0) ||
-        (data_type == DATA_TYPE_FLOAT && ((float*)values)[i] == 0.0f)) {
+      if ((data_type == DATA_TYPE_INTEGER && values[i].i == 0) ||
+        (data_type == DATA_TYPE_DOUBLE && values[i].d == 0.0)) {
         continue;
       }
       n_non_zeros++;
@@ -23,7 +23,7 @@ inline int count_non_zero_values(char data_type, int width, int height, void* va
 
 inline int is_zero_value(char data_type, int i, union matrix_value* values) {
   return (data_type == DATA_TYPE_INTEGER && values[i].i == 0) ||
-    (data_type == DATA_TYPE_FLOAT && values[i].f == 0.0f);
+    (data_type == DATA_TYPE_DOUBLE && values[i].d == 0.0f);
 }
 
 inline void set_zero_matrix_value(char data_type, union matrix_value* value) {
@@ -31,7 +31,7 @@ inline void set_zero_matrix_value(char data_type, union matrix_value* value) {
     value->i = 0;
   }
   else {
-    value->f = 0.0f;
+    value->d = 0.0;
   }
 }
 

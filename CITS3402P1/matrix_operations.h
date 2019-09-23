@@ -14,7 +14,7 @@ enum mop_errno_t {
   mop_no_such_op
 };
 
-enum mop_errno_t matrix_scalar_multiply(char data_type, float a, void* matrix, int width, int height, matrix_get_col get_col, matrix_constructor constructor, void** result_matrix, char* result_data_type, clock_t* elapsed);
+enum mop_errno_t matrix_scalar_multiply(char data_type, double a, void* matrix, int width, int height, matrix_get_col get_col, matrix_constructor constructor, void** result_matrix, char* result_data_type, clock_t* elapsed);
 
 enum mop_errno_t matrix_trace(char data_type, struct coo_matrix* coo_matrix, union matrix_value* trace, char* result_data_type, clock_t* elapsed);
 
