@@ -1,5 +1,7 @@
 #pragma once
 
+#include <time.h>
+
 #include "matrix.h"
 #include "coo_matrix.h"
 #include "csc_matrix.h"
