@@ -25,3 +25,9 @@ inline struct coo_triple coo_matrix_get_triple(struct coo_matrix* coo_matrix, in
 {
   return ((struct coo_triple*)coo_matrix->triples)[i];
 }
+
+inline void coo_matrix_free(struct coo_matrix** coo_matrix)
+{
+  free((*coo_matrix)->triples);
+  free(*coo_matrix);
+}

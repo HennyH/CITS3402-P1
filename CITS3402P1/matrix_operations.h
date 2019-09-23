@@ -1,3 +1,5 @@
+#pragma once
+
 #include "matrix.h"
 #include "coo_matrix.h"
 #include "csc_matrix.h"
@@ -6,7 +8,8 @@ enum mop_errno_t {
   mop_errno_ok,
   mop_errno_dimension_incompatible,
   mop_errno_expected_square,
-  mop_errno_argument_invalid
+  mop_errno_argument_invalid,
+  mop_no_such_op
 };
 
 enum mop_errno_t matrix_scalar_multiply(char data_type, float a, void* matrix, int width, int height, matrix_get_col get_col, matrix_constructor constructor, void** result_matrix);

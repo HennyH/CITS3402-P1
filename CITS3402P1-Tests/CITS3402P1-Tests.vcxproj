@@ -94,6 +94,7 @@
       <AdditionalIncludeDirectories>C:\Program Files %28x86%29\check\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsC</CompileAs>
       <OpenMPSupport>true</OpenMPSupport>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,6 +149,7 @@
       <ConformanceMode>true</ConformanceMode>
       <CompileAs>CompileAsC</CompileAs>
       <OpenMPSupport>true</OpenMPSupport>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -165,6 +167,45 @@
     <ClCompile Include="..\CITS3402P1\log_file_writer.c" />
     <ClCompile Include="..\CITS3402P1\matrix_operations.c" />
     <ClCompile Include="CITS3402P1-Tests.c" />
+    <ClCompile Include="spec_test_ad_float1024_float1024.c" />
+    <ClCompile Include="spec_test_ad_float128_float128.c" />
+    <ClCompile Include="spec_test_ad_float256_float256.c" />
+    <ClCompile Include="spec_test_ad_float64_float64.c" />
+    <ClCompile Include="spec_test_ad_int1024_int1024.c" />
+    <ClCompile Include="spec_test_ad_int128_int128.c" />
+    <ClCompile Include="spec_test_ad_int256_int256.c" />
+    <ClCompile Include="spec_test_ad_int64_int64.c" />
+    <ClCompile Include="spec_test_mm_float1024_float1024.c" />
+    <ClCompile Include="spec_test_mm_float128_float128.c" />
+    <ClCompile Include="spec_test_mm_float256_float256.c" />
+    <ClCompile Include="spec_test_mm_float64_float64.c" />
+    <ClCompile Include="spec_test_mm_int1024_int1024.c" />
+    <ClCompile Include="spec_test_mm_int128_int128.c" />
+    <ClCompile Include="spec_test_mm_int256_int256.c" />
+    <ClCompile Include="spec_test_mm_int64_int64.c" />
+    <ClCompile Include="spec_test_sm_float1024.c" />
+    <ClCompile Include="spec_test_sm_float128.c" />
+    <ClCompile Include="spec_test_sm_float256.c" />
+    <ClCompile Include="spec_test_sm_float64.c" />
+    <ClCompile Include="spec_test_sm_int1024.c" />
+    <ClCompile Include="spec_test_sm_int128.c" />
+    <ClCompile Include="spec_test_sm_int256.c" />
+    <ClCompile Include="spec_test_sm_int64.c" />
+    <ClCompile Include="spec_test_tr_float1024.c" />
+    <ClCompile Include="spec_test_tr_float128.c" />
+    <ClCompile Include="spec_test_tr_float256.c" />
+    <ClCompile Include="spec_test_tr_float64.c" />
+    <ClCompile Include="spec_test_tr_int1024.c" />
+    <ClCompile Include="spec_test_tr_int128.c" />
+    <ClCompile Include="spec_test_tr_int256.c" />
+    <ClCompile Include="spec_test_tr_int64.c" />
+    <ClCompile Include="spec_test_ts_float1024.c" />
+    <ClCompile Include="spec_test_ts_float128.c" />
+    <ClCompile Include="spec_test_ts_float256.c" />
+    <ClCompile Include="spec_test_ts_float64.c" />
+    <ClCompile Include="spec_test_ts_int1024.c" />
+    <ClCompile Include="spec_test_ts_int128.c" />
+    <ClCompile Include="spec_test_ts_int256.c" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CITS3402P1\CITS3402P1.vcxproj">
@@ -172,31 +213,24 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="examples\ad_4t_int1_int2.out" />
-    <None Include="examples\sm3_4t_int1.out" />
-    <None Include="examples\tr_4t_int1.out" />
-    <None Include="examples\mm_4t_float1_float2.out" />
-    <None Include="examples\ts_4t_float1.out" />
-    <None Include="examples\float1.in" />
-    <None Include="examples\float1024.in" />
-    <None Include="examples\float128.in" />
-    <None Include="examples\float2.in" />
-    <None Include="examples\float256.in" />
-    <None Include="examples\float64.in" />
-    <None Include="examples\int1.in" />
-    <None Include="examples\int1024.in" />
-    <None Include="examples\int128.in" />
-    <None Include="examples\int2.in" />
-    <None Include="examples\int256.in" />
-    <None Include="examples\int64.in" />
-    <None Include="float_4x4.in" />
-    <None Include="int_2x2.in" />
-    <None Include="int_4x4.in" />
-    <None Include="int_2x3.in" />
-    <None Include="int_3x2.in" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="float_1x5.in" />
+    <None Include="inputs\float1.in" />
+    <None Include="inputs\float1024.in" />
+    <None Include="inputs\float128.in" />
+    <None Include="inputs\float2.in" />
+    <None Include="inputs\float256.in" />
+    <None Include="inputs\float64.in" />
+    <None Include="inputs\float_1x5.in" />
+    <None Include="inputs\float_4x4.in" />
+    <None Include="inputs\int1.in" />
+    <None Include="inputs\int1024.in" />
+    <None Include="inputs\int128.in" />
+    <None Include="inputs\int2.in" />
+    <None Include="inputs\int256.in" />
+    <None Include="inputs\int64.in" />
+    <None Include="inputs\int_2x2.in" />
+    <None Include="inputs\int_2x3.in" />
+    <None Include="inputs\int_3x2.in" />
+    <None Include="inputs\int_4x4.in" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

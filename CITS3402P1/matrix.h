@@ -3,7 +3,7 @@
 #define DATA_TYPE_INTEGER 'i'
 #define DATA_TYPE_FLOAT 'f'
 
-typedef union matrix_value { int i; float f; };
+union matrix_value { int i; float f; };
 
 inline int count_non_zero_values(char data_type, int width, int height, void* values) {
   int n_non_zeros = 0;

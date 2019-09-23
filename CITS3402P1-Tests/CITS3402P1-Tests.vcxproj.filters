@@ -13,8 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Resource Files\examples">
-      <UniqueIdentifier>{f9132aa3-0bd0-48fa-b18e-baddf517a4ad}</UniqueIdentifier>
+    <Filter Include="Source Files\specs">
+      <UniqueIdentifier>{d8a1afe7-0db8-43d4-98ef-b2f4ea3814db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\inputs">
+      <UniqueIdentifier>{fc0635c7-888a-4429-8eed-1a293e378844}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -42,78 +45,178 @@
     <ClCompile Include="..\CITS3402P1\cli_parser.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="spec_test_ad_float64_float64.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_ad_float128_float128.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_ad_float256_float256.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_ad_float1024_float1024.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_ad_int64_int64.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_ad_int128_int128.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_ad_int256_int256.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_ad_int1024_int1024.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_mm_float64_float64.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_mm_float128_float128.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_mm_float256_float256.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_mm_float1024_float1024.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_mm_int64_int64.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_mm_int128_int128.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_mm_int256_int256.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_mm_int1024_int1024.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_sm_float64.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_sm_float128.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_sm_float256.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_sm_float1024.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_sm_int64.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_sm_int128.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_sm_int256.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_sm_int1024.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_tr_float64.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_tr_float128.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_tr_float256.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_tr_float1024.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_tr_int64.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_tr_int128.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_tr_int256.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_tr_int1024.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_ts_float64.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_ts_float128.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_ts_float256.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_ts_float1024.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_ts_int128.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_ts_int256.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
+    <ClCompile Include="spec_test_ts_int1024.c">
+      <Filter>Source Files\specs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="int_3x2.in">
-      <Filter>Resource Files</Filter>
+    <None Include="inputs\float64.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="int_2x3.in">
-      <Filter>Resource Files</Filter>
+    <None Include="inputs\float128.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="int_4x4.in">
-      <Filter>Resource Files</Filter>
+    <None Include="inputs\float256.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="float_4x4.in">
-      <Filter>Resource Files</Filter>
+    <None Include="inputs\float1024.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="int_2x2.in">
-      <Filter>Resource Files</Filter>
+    <None Include="inputs\int1.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="examples\float1.in">
-      <Filter>Resource Files\examples</Filter>
+    <None Include="inputs\int2.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="examples\float2.in">
-      <Filter>Resource Files\examples</Filter>
+    <None Include="inputs\int64.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="examples\float64.in">
-      <Filter>Resource Files\examples</Filter>
+    <None Include="inputs\int128.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="examples\float128.in">
-      <Filter>Resource Files\examples</Filter>
+    <None Include="inputs\int256.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="examples\float256.in">
-      <Filter>Resource Files\examples</Filter>
+    <None Include="inputs\int1024.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="examples\float1024.in">
-      <Filter>Resource Files\examples</Filter>
+    <None Include="inputs\float1.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="examples\int1.in">
-      <Filter>Resource Files\examples</Filter>
+    <None Include="inputs\float2.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="examples\int2.in">
-      <Filter>Resource Files\examples</Filter>
+    <None Include="inputs\int_3x2.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="examples\int64.in">
-      <Filter>Resource Files\examples</Filter>
+    <None Include="inputs\int_4x4.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="examples\int128.in">
-      <Filter>Resource Files\examples</Filter>
+    <None Include="inputs\float_1x5.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="examples\int256.in">
-      <Filter>Resource Files\examples</Filter>
+    <None Include="inputs\float_4x4.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="examples\int1024.in">
-      <Filter>Resource Files\examples</Filter>
+    <None Include="inputs\int_2x2.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="examples\sm3_4t_int1.out">
-      <Filter>Resource Files\examples</Filter>
+    <None Include="inputs\int_2x3.in">
+      <Filter>Resource Files\inputs</Filter>
     </None>
-    <None Include="examples\tr_4t_int1.out">
-      <Filter>Resource Files\examples</Filter>
-    </None>
-    <None Include="examples\mm_4t_float1_float2.out">
-      <Filter>Resource Files\examples</Filter>
-    </None>
-    <None Include="examples\ts_4t_float1.out">
-      <Filter>Resource Files\examples</Filter>
-    </None>
-    <None Include="examples\ad_4t_int1_int2.out">
-      <Filter>Resource Files\examples</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="float_1x5.in">
-      <Filter>Resource Files</Filter>
-    </Text>
   </ItemGroup>
 </Project>

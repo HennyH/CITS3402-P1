@@ -15,6 +15,46 @@
 #include "../CITS3402P1/log_file_writer.h"
 #include "../CITS3402P1/cli_parser.h"
 
+#include "spec_test_ad_float1024_float1024.c"
+#include "spec_test_ad_float128_float128.c"
+#include "spec_test_ad_float256_float256.c"
+#include "spec_test_ad_float64_float64.c"
+#include "spec_test_ad_int1024_int1024.c"
+#include "spec_test_ad_int128_int128.c"
+#include "spec_test_ad_int256_int256.c"
+#include "spec_test_ad_int64_int64.c"
+#include "spec_test_mm_float1024_float1024.c"
+#include "spec_test_mm_float128_float128.c"
+#include "spec_test_mm_float256_float256.c"
+#include "spec_test_mm_float64_float64.c"
+#include "spec_test_mm_int1024_int1024.c"
+#include "spec_test_mm_int128_int128.c"
+#include "spec_test_mm_int256_int256.c"
+#include "spec_test_mm_int64_int64.c"
+#include "spec_test_sm_float1024.c"
+#include "spec_test_sm_float128.c"
+#include "spec_test_sm_float256.c"
+#include "spec_test_sm_float64.c"
+#include "spec_test_sm_int1024.c"
+#include "spec_test_sm_int128.c"
+#include "spec_test_sm_int256.c"
+#include "spec_test_sm_int64.c"
+#include "spec_test_tr_float1024.c"
+#include "spec_test_tr_float128.c"
+#include "spec_test_tr_float256.c"
+#include "spec_test_tr_float64.c"
+#include "spec_test_tr_int1024.c"
+#include "spec_test_tr_int128.c"
+#include "spec_test_tr_int256.c"
+#include "spec_test_tr_int64.c"
+#include "spec_test_ts_float1024.c"
+#include "spec_test_ts_float128.c"
+#include "spec_test_ts_float256.c"
+#include "spec_test_ts_float64.c"
+#include "spec_test_ts_int1024.c"
+#include "spec_test_ts_int128.c"
+#include "spec_test_ts_int256.c"
+
 START_TEST(coo_matrix_constructor_ints)
 {
   union matrix_value values[] = {
@@ -164,7 +204,7 @@ START_TEST(file_reader_reads_int1)
 {
   char data_type;
   int n_rows, n_cols;
-  union matrix_value* values = read_file("int_4x4.in", &data_type, &n_rows, &n_cols);
+  union matrix_value* values = read_file("./inputs/int_4x4.in", &data_type, &n_rows, &n_cols);
   ck_assert_int_eq(data_type, DATA_TYPE_INTEGER);
   ck_assert_int_eq(n_rows, 4);
   ck_assert_int_eq(n_cols, 4);
@@ -191,7 +231,7 @@ START_TEST(file_reader_reads_float1)
 {
   char data_type;
   int n_rows, n_cols;
-  union matrix_value* values = read_file("float_4x4.in", &data_type, &n_rows, &n_cols);
+  union matrix_value* values = read_file("./inputs/float_4x4.in", &data_type, &n_rows, &n_cols);
   ck_assert_int_eq(data_type, DATA_TYPE_FLOAT);
   ck_assert_int_eq(n_rows, 4);
   ck_assert_int_eq(n_cols, 4);
@@ -218,8 +258,8 @@ START_TEST(matrix_op_mul_mixed_square_matrix)
 {
   char left_m_data_type, right_m_data_type;
   int left_m_n_cols, left_m_n_rows, right_m_n_cols, right_m_n_rows;
-  void* left_m_values = read_file("int_4x4.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
-  void* right_m_values = read_file("float_4x4.in", &right_m_data_type, &right_m_n_rows, &right_m_n_cols);
+  void* left_m_values = read_file("./inputs/int_4x4.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
+  void* right_m_values = read_file("./inputs/float_4x4.in", &right_m_data_type, &right_m_n_rows, &right_m_n_cols);
   struct csr_matrix* left_m = csr_matrix_constructor(left_m_data_type, left_m_n_cols, left_m_n_rows, left_m_values);
   struct csc_matrix* right_m = csc_matrix_constructor(right_m_data_type, right_m_n_cols, right_m_n_rows, right_m_values);
   struct coo_matrix* result;
@@ -258,8 +298,8 @@ START_TEST(matrix_op_mul_int_rectangular)
 {
   char left_m_data_type, right_m_data_type;
   int left_m_n_cols, left_m_n_rows, right_m_n_cols, right_m_n_rows;
-  void* left_m_values = read_file("int_2x3.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
-  void* right_m_values = read_file("int_3x2.in", &right_m_data_type, &right_m_n_rows, &right_m_n_cols);
+  void* left_m_values = read_file("./inputs/int_2x3.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
+  void* right_m_values = read_file("./inputs/int_3x2.in", &right_m_data_type, &right_m_n_rows, &right_m_n_cols);
   struct csr_matrix* left_m = csr_matrix_constructor(left_m_data_type, left_m_n_cols, left_m_n_rows, left_m_values);
   struct csc_matrix* right_m = csc_matrix_constructor(right_m_data_type, right_m_n_cols, right_m_n_rows, right_m_values);
   struct coo_matrix* result;
@@ -298,8 +338,8 @@ START_TEST(matrix_op_mul_invalid_dimensions)
 {
   char left_m_data_type, right_m_data_type;
   int left_m_n_cols, left_m_n_rows, right_m_n_cols, right_m_n_rows;
-  void* left_m_values = read_file("int_4x4.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
-  void* right_m_values = read_file("int_3x2.in", &right_m_data_type, &right_m_n_rows, &right_m_n_cols);
+  void* left_m_values = read_file("./inputs/int_4x4.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
+  void* right_m_values = read_file("./inputs/int_3x2.in", &right_m_data_type, &right_m_n_rows, &right_m_n_cols);
   struct csr_matrix* left_m = csr_matrix_constructor(left_m_data_type, left_m_n_cols, left_m_n_rows, left_m_values);
   struct csc_matrix* right_m = csc_matrix_constructor(right_m_data_type, right_m_n_cols, right_m_n_rows, right_m_values);
   struct coo_matrix* result;
@@ -317,8 +357,8 @@ START_TEST(matrix_op_add_mixed_square)
 {
   char left_m_data_type, right_m_data_type;
   int left_m_n_cols, left_m_n_rows, right_m_n_cols, right_m_n_rows;
-  void* left_m_values = read_file("int_4x4.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
-  void* right_m_values = read_file("float_4x4.in", &right_m_data_type, &right_m_n_rows, &right_m_n_cols);
+  void* left_m_values = read_file("./inputs/int_4x4.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
+  void* right_m_values = read_file("./inputs/float_4x4.in", &right_m_data_type, &right_m_n_rows, &right_m_n_cols);
   struct csc_matrix* left_m = csc_matrix_constructor(left_m_data_type, left_m_n_cols, left_m_n_rows, left_m_values);
   struct csc_matrix* right_m = csc_matrix_constructor(right_m_data_type, right_m_n_cols, right_m_n_rows, right_m_values);
   struct coo_matrix* result;
@@ -361,7 +401,7 @@ START_TEST(matrix_op_transpose_int_square)
 {
   char data_type;
   int n_cols, n_rows;
-  void* values = read_file("int_2x2.in", &data_type, &n_rows, &n_cols);
+  void* values = read_file("./inputs/int_2x2.in", &data_type, &n_rows, &n_cols);
   struct csc_matrix* m = csc_matrix_constructor(data_type, n_cols, n_rows, values);
   struct coo_matrix* m_transposed;
   enum mop_errno_t error = matrix_transpose(data_type, n_cols, n_rows, m, &csc_matrix_get_col, NULL, &coo_matrix_constructor, &m_transposed);
@@ -393,7 +433,7 @@ START_TEST(matrix_op_transpose_float_rectangluar)
 {
   char data_type;
   int n_cols, n_rows;
-  void* values = read_file("float_1x5.in", &data_type, &n_rows, &n_cols);
+  void* values = read_file("./inputs/float_1x5.in", &data_type, &n_rows, &n_cols);
   struct csr_matrix* m = csr_matrix_constructor(data_type, n_cols, n_rows, values);
   struct coo_matrix* m_transposed;
   enum mop_errno_t error = matrix_transpose(data_type, n_cols, n_rows, m, NULL, &csr_matrix_get_row, &coo_matrix_constructor, &m_transposed);
@@ -422,49 +462,6 @@ START_TEST(matrix_op_transpose_float_rectangluar)
   ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 4).col_i, 0);
   ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 4).row_i, 4);
   ck_assert_int_eq(coo_matrix_get_triple(m_transposed, 4).value.f, -5.0);
-}
-END_TEST
-
-START_TEST(e2e_ad_4t_int1_int2)
-{
-  char left_m_data_type, right_m_data_type;
-  int left_m_n_cols, left_m_n_rows, right_m_n_cols, right_m_n_rows;
-  void* left_m_values = read_file("examples/int1.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
-  void* right_m_values = read_file("examples/int2.in", &right_m_data_type, &right_m_n_rows, &right_m_n_cols);
-  struct csc_matrix* left_m = csc_matrix_constructor(left_m_data_type, left_m_n_cols, left_m_n_rows, left_m_values);
-  struct csc_matrix* right_m = csc_matrix_constructor(right_m_data_type, right_m_n_cols, right_m_n_rows, right_m_values);
-  struct coo_matrix* result;
-  enum mop_errno_t error = matrix_add(
-    left_m_data_type, left_m_n_cols, left_m_n_rows, left_m, &csc_matrix_get_col,
-    right_m_data_type, right_m_n_cols, right_m_n_rows, right_m, &csc_matrix_get_col,
-    &csr_matrix_constructor,
-    &result
-  );
-
-  char* filename = log_file_write_matrix("21471423", "add", "int1.in", "int2.in", 4, 0, left_m_data_type, left_m_n_cols, left_m_n_rows, result, &csr_matrix_get_row);
-
-  char* expected = read_all("examples/ad_4t_int1_int2.out");
-  char* actual = read_all(filename);
-
-  ck_assert_str_eq(actual, expected);
-}
-END_TEST
-
-START_TEST(e2e_sm3_4t_int1)
-{
-  char data_type;
-  int n_cols, n_rows;
-  void* values = read_file("examples/int1.in", &data_type, &n_rows, &n_cols);
-  struct csc_matrix* m = csc_matrix_constructor(data_type, n_cols, n_rows, values);
-  struct coo_matrix* m_transposed;
-  enum mop_errno_t error = matrix_scalar_multiply(data_type, 3.0, m, n_cols, n_rows, &csc_matrix_get_col, &csr_matrix_constructor, &m_transposed);
-
-  char* filename = log_file_write_matrix("21471423", "sm 3", "int1.in", NULL, 4, 0, DATA_TYPE_FLOAT, n_rows, n_cols, m_transposed, &csr_matrix_get_row);
-
-  char* expected = read_all("examples/sm3_4t_int1.out");
-  char* actual = read_all(filename);
-
-  ck_assert_str_eq(actual, expected);
 }
 END_TEST
 
@@ -515,7 +512,6 @@ START_TEST(cli_args_ts)
   ck_assert_int_eq(log, 0);
 }
 END_TEST
-
 
 START_TEST(cli_args_sm)
 {
@@ -609,10 +605,6 @@ int main(void)
   tcase_add_test(matrix_ops_test_case, matrix_op_transpose_int_square);
   tcase_add_test(matrix_ops_test_case, matrix_op_transpose_float_rectangluar);
 
-  TCase* e2e_test_case = tcase_create("E2E Tests");
-  tcase_add_test(e2e_test_case, e2e_ad_4t_int1_int2);
-  tcase_add_test(e2e_test_case, e2e_sm3_4t_int1);
-
   TCase* cli_parser_test_case = tcase_create("CLI Parser");
   tcase_add_test(cli_parser_test_case, cli_args_sm);
   tcase_add_test(cli_parser_test_case, cli_args_tr);
@@ -620,12 +612,53 @@ int main(void)
   tcase_add_test(cli_parser_test_case, cli_args_ts);
   tcase_add_test(cli_parser_test_case, cli_args_mm);
 
+  TCase* spec_test_case = tcase_create("Spec Tests");
+  tcase_add_test(spec_test_case, spec_test_ad_float1024_float1024);
+  tcase_add_test(spec_test_case, spec_test_ad_float128_float128);
+  tcase_add_test(spec_test_case, spec_test_ad_float256_float256);
+  tcase_add_test(spec_test_case, spec_test_ad_float64_float64);
+  tcase_add_test(spec_test_case, spec_test_ad_int1024_int1024);
+  tcase_add_test(spec_test_case, spec_test_ad_int128_int128);
+  tcase_add_test(spec_test_case, spec_test_ad_int256_int256);
+  tcase_add_test(spec_test_case, spec_test_ad_int64_int64);
+  tcase_add_test(spec_test_case, spec_test_mm_float1024_float1024);
+  tcase_add_test(spec_test_case, spec_test_mm_float128_float128);
+  tcase_add_test(spec_test_case, spec_test_mm_float256_float256);
+  tcase_add_test(spec_test_case, spec_test_mm_float64_float64);
+  tcase_add_test(spec_test_case, spec_test_mm_int1024_int1024);
+  tcase_add_test(spec_test_case, spec_test_mm_int128_int128);
+  tcase_add_test(spec_test_case, spec_test_mm_int256_int256);
+  tcase_add_test(spec_test_case, spec_test_mm_int64_int64);
+  tcase_add_test(spec_test_case, spec_test_sm_float1024);
+  tcase_add_test(spec_test_case, spec_test_sm_float128);
+  tcase_add_test(spec_test_case, spec_test_sm_float256);
+  tcase_add_test(spec_test_case, spec_test_sm_float64);
+  tcase_add_test(spec_test_case, spec_test_sm_int1024);
+  tcase_add_test(spec_test_case, spec_test_sm_int128);
+  tcase_add_test(spec_test_case, spec_test_sm_int256);
+  tcase_add_test(spec_test_case, spec_test_sm_int64);
+  tcase_add_test(spec_test_case, spec_test_tr_float1024);
+  tcase_add_test(spec_test_case, spec_test_tr_float128);
+  tcase_add_test(spec_test_case, spec_test_tr_float256);
+  tcase_add_test(spec_test_case, spec_test_tr_float64);
+  tcase_add_test(spec_test_case, spec_test_tr_int1024);
+  tcase_add_test(spec_test_case, spec_test_tr_int128);
+  tcase_add_test(spec_test_case, spec_test_tr_int256);
+  tcase_add_test(spec_test_case, spec_test_tr_int64);
+  tcase_add_test(spec_test_case, spec_test_ts_float1024);
+  tcase_add_test(spec_test_case, spec_test_ts_float128);
+  tcase_add_test(spec_test_case, spec_test_ts_float256);
+  tcase_add_test(spec_test_case, spec_test_ts_float64);
+  tcase_add_test(spec_test_case, spec_test_ts_int1024);
+  tcase_add_test(spec_test_case, spec_test_ts_int128);
+  tcase_add_test(spec_test_case, spec_test_ts_int256);
+
   Suite* project_test_suite = suite_create("Project Test Suite");
   suite_add_tcase(project_test_suite, matrix_constructors_test_case);
   suite_add_tcase(project_test_suite, file_reader_test_case);
   suite_add_tcase(project_test_suite, matrix_ops_test_case);
-  suite_add_tcase(project_test_suite, e2e_test_case);
   suite_add_tcase(project_test_suite, cli_parser_test_case);
+  suite_add_tcase(project_test_suite, spec_test_case);
 
   SRunner* runner = srunner_create(project_test_suite);
 

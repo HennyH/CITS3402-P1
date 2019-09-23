@@ -21,7 +21,8 @@ enum mop_errno_t matrix_scalar_multiply(char data_type, float a, void* matrix, i
       int row_i = 0;
 #pragma omp for
       for (row_i = 0; row_i < height; row_i++) {
-        result_values[col_i * width + row_i].f = a * (data_type == DATA_TYPE_INTEGER ? (float)column[row_i].i : column[row_i].f);
+        union matrix_value cell_value = { .f = a * (data_type == DATA_TYPE_INTEGER ? (float)column[row_i].i : column[row_i].f) };
+        set_ltr_ttb_value(row_i, col_i, width, height, cell_value, result_values);
       }
     }
   }
