@@ -62,17 +62,17 @@ void parse_cli_args(int argc, char* argv[], char** envp, char** operation, float
 enum mop_errno_t perform_cli_action(char* operation, float sm_multiple, char* input_file_1, char* input_file_2, int n_threads, clock_t* load_ms, clock_t* operation_ms, matrix_constructor constructor, void** matrix_result, union matrix_value* value_result, char* result_data_type)
 {
   enum mop_errno_t mop_errno = mop_no_such_op;
-  clock_t load_start, load_finish, operation_finish;
+  clock_t load_start, load_finish, operation_duration;
   load_start = clock();
   load_finish = clock();
-
+   
   if (strcmp("sm", operation) == 0) {
     char m_data_type;
     int m_rows, m_cols;
     union matrix_value* m_values = read_file(input_file_1, &m_data_type, &m_rows, &m_cols);
     struct csc_matrix* m = csc_matrix_constructor(m_data_type, m_cols, m_rows, m_values);
     load_finish = clock();
-    mop_errno = matrix_scalar_multiply(m_data_type, sm_multiple, m, m_cols, m_rows, &csc_matrix_get_col, constructor, matrix_result, result_data_type);
+    mop_errno = matrix_scalar_multiply(m_data_type, sm_multiple, m, m_cols, m_rows, &csc_matrix_get_col, constructor, matrix_result, result_data_type, &operation_duration);
     csc_matrix_free(&m);
   }
   else if (strcmp("tr", operation) == 0) {
@@ -81,7 +81,7 @@ enum mop_errno_t perform_cli_action(char* operation, float sm_multiple, char* in
     union matrix_value* m_values = read_file(input_file_1, &m_data_type, &m_rows, &m_cols);
     struct coo_matrix* m = coo_matrix_constructor(m_data_type, m_cols, m_rows, m_values);
     load_finish = clock();
-    mop_errno = matrix_trace(m_data_type, m, value_result, result_data_type);
+    mop_errno = matrix_trace(m_data_type, m, value_result, result_data_type, &operation_duration);
     coo_matrix_free(&m);
   }
   else if (strcmp("ts", operation) == 0) {
@@ -90,7 +90,7 @@ enum mop_errno_t perform_cli_action(char* operation, float sm_multiple, char* in
     union matrix_value* m_values = read_file(input_file_1, &m_data_type, &m_rows, &m_cols);
     struct csc_matrix* m = csc_matrix_constructor(m_data_type, m_cols, m_rows, m_values);
     load_finish = clock();
-    mop_errno = matrix_transpose(m_data_type, m_cols, m_rows, m, &csc_matrix_get_col, NULL, constructor, matrix_result, result_data_type);
+    mop_errno = matrix_transpose(m_data_type, m_cols, m_rows, m, &csc_matrix_get_col, NULL, constructor, matrix_result, result_data_type, &operation_duration);
     csc_matrix_free(&m);
   }
   else {
@@ -108,7 +108,8 @@ enum mop_errno_t perform_cli_action(char* operation, float sm_multiple, char* in
         right_m_data_type, right_m_n_cols, right_m_n_rows, right_m, &csc_matrix_get_col,
         constructor,
         matrix_result,
-        result_data_type
+        result_data_type,
+        &operation_duration
       );
       csc_matrix_free(&left_m);
       csc_matrix_free(&right_m);
@@ -122,17 +123,17 @@ enum mop_errno_t perform_cli_action(char* operation, float sm_multiple, char* in
         right_m_data_type, right_m_n_cols, right_m_n_rows, right_m, &csc_matrix_get_col,
         constructor,
         matrix_result,
-        result_data_type
+        result_data_type,
+        &operation_duration
       );
       csr_matrix_free(&left_m);
       csc_matrix_free(&right_m);
     }
   }
 
-  operation_finish = clock();
 
-  *load_ms = (load_finish - load_start) / CLOCKS_PER_SEC * 1000;
-  *operation_ms = (operation_finish - load_finish) / CLOCKS_PER_SEC * 1000;
+  *load_ms = load_finish - load_start;
+  *operation_ms = operation_duration;
 
   return mop_errno;
 }

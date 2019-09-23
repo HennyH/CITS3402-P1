@@ -44,8 +44,8 @@ void log_file_write_header(FILE* log_file, char* operation, char* input_filename
 }
 
 void log_file_write_footer(FILE* log_file, time_t load_time, time_t calc_time) {
-  fprintf_s(log_file, "%d\n", (int)load_time);
-  fprintf_s(log_file, "%d\n", (int)calc_time);
+  fprintf_s(log_file, "%f\n", (float)load_time / (float)CLOCKS_PER_SEC);
+  fprintf_s(log_file, "%f\n", (float)calc_time / (float)CLOCKS_PER_SEC);
 }
 
 void log_file_write_matrix(FILE* log_file, int value_limit, char data_type, int width, int height, void* matrix, matrix_get_row get_row) {

@@ -2,14 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
+#include <omp.h>
 #include "matrix.h"
 #include "coo_matrix.h"
 #include "csc_matrix.h"
 #include "matrix_operations.h"
 
-enum mop_errno_t matrix_scalar_multiply(char data_type, float a, void* matrix, int width, int height, matrix_get_col get_col, matrix_constructor constructor, void** result_matrix, char* result_data_type)
+enum mop_errno_t matrix_scalar_multiply(char data_type, float a, void* matrix, int width, int height, matrix_get_col get_col, matrix_constructor constructor, void** result_matrix, char* result_data_type, clock_t* elapsed)
 {
   union matrix_value* result_values = (union matrix_value*)calloc(width * height, sizeof(union matrix_value));
+
+  clock_t start = clock();
 
   for (int col_i = 0; col_i < width; col_i++)
   {
@@ -27,18 +31,24 @@ enum mop_errno_t matrix_scalar_multiply(char data_type, float a, void* matrix, i
     }
   }
 
+  clock_t end = clock();
+  *elapsed = end - start;
+
   *result_matrix = constructor('f', width, height, result_values);
   *result_data_type = DATA_TYPE_FLOAT;
   free(result_values);
   return mop_errno_ok;
 }
 
-enum mop_errno_t matrix_trace(char data_type, struct coo_matrix* coo_matrix, union matrix_value* trace, char* result_data_type)
+enum mop_errno_t matrix_trace(char data_type, struct coo_matrix* coo_matrix, union matrix_value* trace, char* result_data_type, clock_t* elapsed)
 {
   int i;
   float trace_f = 0;
   int trace_i = 0;
   int n_values = coo_matrix->n_triples;
+
+  clock_t start = clock();
+
 #pragma omp parallel for shared(coo_matrix) reduction(+: trace_f) reduction(+: trace_i)
   for (i = 0; i < n_values; i++) {
     if (coo_matrix->triples[i].row_i == coo_matrix->triples[i].col_i) {
@@ -51,6 +61,9 @@ enum mop_errno_t matrix_trace(char data_type, struct coo_matrix* coo_matrix, uni
     }
   }
 
+  clock_t end = clock();
+  *elapsed = end - start;
+
   if (data_type == DATA_TYPE_FLOAT) {
     *result_data_type = DATA_TYPE_FLOAT;
     trace->f = trace_f;
@@ -62,13 +75,16 @@ enum mop_errno_t matrix_trace(char data_type, struct coo_matrix* coo_matrix, uni
   return mop_errno_ok;
 }
 
-enum mop_errno_t matrix_transpose(char data_type, int width, int height, void* matrix, matrix_get_col get_col, matrix_get_row get_row, matrix_constructor constructor, void** result_matrix, char* result_data_type) {
+enum mop_errno_t matrix_transpose(char data_type, int width, int height, void* matrix, matrix_get_col get_col, matrix_get_row get_row, matrix_constructor constructor, void** result_matrix, char* result_data_type, clock_t* elapsed) {
   if (get_col == NULL && get_row == NULL) {
     printf("Transpose requires either `get_col` or `get_row` to be provided.");
     return mop_errno_argument_invalid;
   }
 
   union matrix_value* result_values = (union matrix_value*)calloc(width * height, sizeof(union matrix_value));
+
+  clock_t start = clock();
+
   /* What's going on here is that we allow the user to provide either a method of providing ROWS xor COLUMNS.
    * depending on what they give we will either transpose the matrix via changing rows->columns xor columns->rows.
    * We allow this to improve memory access patterns on matrices that are significantly wider or taller than they are tall or wide
@@ -100,6 +116,9 @@ enum mop_errno_t matrix_transpose(char data_type, int width, int height, void* m
     }
   }
 
+  clock_t end = clock();
+  *elapsed = end - start;
+
   /* note we swapped the height/width arguments here! */
   *result_data_type = data_type;
   *result_matrix = constructor(data_type, height, width, result_values);
@@ -107,7 +126,7 @@ enum mop_errno_t matrix_transpose(char data_type, int width, int height, void* m
   return mop_errno_ok;
 }
 
-enum mop_errno_t matrix_add(char left_data_type, int left_matrix_width, int left_matrix_height, void* left_matrix, matrix_get_col get_left_matrix_col, char right_data_type, int right_matrix_width, int right_matrix_height, void* right_matrix, matrix_get_col get_right_matrix_col, matrix_constructor constructor, void** result_matrix, char* result_data_type)
+enum mop_errno_t matrix_add(char left_data_type, int left_matrix_width, int left_matrix_height, void* left_matrix, matrix_get_col get_left_matrix_col, char right_data_type, int right_matrix_width, int right_matrix_height, void* right_matrix, matrix_get_col get_right_matrix_col, matrix_constructor constructor, void** result_matrix, char* result_data_type, clock_t* elapsed)
 {
   if (left_matrix_width != right_matrix_width || left_matrix_height != right_matrix_height) {
     return mop_errno_dimension_incompatible;
@@ -117,6 +136,8 @@ enum mop_errno_t matrix_add(char left_data_type, int left_matrix_width, int left
   const int result_matrix_height = left_matrix_height;
   union matrix_value* result_values = (union matrix_value*)calloc(result_matrix_width * result_matrix_height, sizeof(union matrix_value));
   *result_data_type = left_data_type == DATA_TYPE_FLOAT || right_data_type == DATA_TYPE_FLOAT ? DATA_TYPE_FLOAT : DATA_TYPE_INTEGER;
+
+  clock_t start = clock();
 
   for (int col_i = 0; col_i < result_matrix_width; col_i++)
   {
@@ -147,20 +168,26 @@ enum mop_errno_t matrix_add(char left_data_type, int left_matrix_width, int left
     }
   }
 
+  clock_t end = clock();
+  *elapsed = end - start;
+
   *result_matrix = constructor(*result_data_type, result_matrix_width, result_matrix_height, result_values);
   free(result_values);
   return mop_errno_ok;
 }
 
-enum mop_errno_t matrix_multiply(char left_data_type, int left_matrix_width, int left_matrix_height, void* left_matrix, matrix_get_row get_left_matrix_row, char right_data_type, int right_matrix_width, int right_matrix_height, void* right_matrix, matrix_get_col get_right_matrix_col, matrix_constructor constructor, void** result_matrix, char* result_data_type) {
+enum mop_errno_t matrix_multiply(char left_data_type, int left_matrix_width, int left_matrix_height, void* left_matrix, matrix_get_row get_left_matrix_row, char right_data_type, int right_matrix_width, int right_matrix_height, void* right_matrix, matrix_get_col get_right_matrix_col, matrix_constructor constructor, void** result_matrix, char* result_data_type, clock_t* elapsed) {
   if (right_matrix_height != left_matrix_width) {
     return mop_errno_dimension_incompatible;
   }
+  
   const int result_matrix_width = right_matrix_width;
   const int result_matrix_height = left_matrix_height;
   *result_data_type = left_data_type == DATA_TYPE_FLOAT || right_data_type == DATA_TYPE_FLOAT ? DATA_TYPE_FLOAT : DATA_TYPE_INTEGER;
   union matrix_value* result_values = malloc(sizeof(union matrix_value) * result_matrix_width * result_matrix_height);
   union matrix_value* left_matrix_row;
+
+  clock_t start = clock();
 
   for (int right_matrix_col_i = 0; right_matrix_col_i < right_matrix_width; right_matrix_col_i++) {
     union matrix_value* right_matrix_column = get_right_matrix_col(right_matrix_col_i, right_matrix);
@@ -186,6 +213,9 @@ enum mop_errno_t matrix_multiply(char left_data_type, int left_matrix_width, int
       set_ltr_ttb_value(left_matrix_row_i, right_matrix_col_i, result_matrix_width, result_matrix_height, col_row_product_sum, result_values);
     }
   }
+
+  clock_t end = clock();
+  *elapsed = end - start;
 
   *result_matrix = constructor(*result_data_type, result_matrix_width, result_matrix_height, result_values);
   free(result_values);
