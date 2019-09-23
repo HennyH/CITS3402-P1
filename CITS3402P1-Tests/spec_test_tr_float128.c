@@ -3,7 +3,7 @@
     #include <stdlib.h>
     #include <stdio.h>
     #include <string.h>
-    #include "check.h"
+    #include <check.h>
     #include "../CITS3402P1/matrix.h"
     #include "../CITS3402P1/coo_matrix.h"
     #include "../CITS3402P1/csc_matrix.h"
@@ -33,8 +33,9 @@ START_TEST(spec_test_tr_float128)
 
         struct coo_matrix* matrix_result;
         union matrix_value value_result;
+        char result_data_type;
         double load_seconds, operation_seconds;
-        enum mop_errno_t error = perform_cli_action(operation, sm_multiple, input_file_1, input_file_2, n_threads, &load_seconds, &operation_seconds, &coo_matrix_constructor, &matrix_result, &value_result);
+        enum mop_errno_t error = perform_cli_action(operation, sm_multiple, input_file_1, input_file_2, n_threads, &load_seconds, &operation_seconds, &coo_matrix_constructor, &matrix_result, &value_result, &result_data_type);
     
 
         

@@ -4,23 +4,74 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "matrix.h"
 #include "coo_matrix.h"
 #include "csc_matrix.h"
 #include "csr_matrix.h"
 #include "matrix_operations.h"
 #include "cli_parser.h"
+#include "log_file_writer.h"
 
 
 int main(int argc, char *argv[], char** envp)
 {
-  char* operation = calloc(3, sizeof(char));
-  float sm_multiple;
-  char* input_file_1 = calloc(1025, sizeof(char));
-  char* input_file_2 = calloc(1025, sizeof(char));
-  int n_threads;
-  int log;
-  parse_cli_args(argc, argv, envp, operation, &sm_multiple, input_file_1, input_file_2, &n_threads, &log);
+  char* operation = NULL;
+  float sm_multiple = 2.0;
+  char* input_file_1 = NULL;
+  char* input_file_2 = NULL;
+  int n_threads = 0;
+  int log = 0;
+
+  parse_cli_args(argc, argv, envp, &operation, &sm_multiple, &input_file_1, &input_file_2, &n_threads, &log);
+
+  if (n_threads != 0) {
+    char n_threads_str[5];
+    sprintf_s(n_threads_str, _countof(n_threads_str), "%d", n_threads);
+    _putenv_s("OMP_NUM_THREADS", n_threads_str);
+  }
+
+  struct csr_matrix* matrix_result = NULL;
+  union matrix_value value_result;
+  char result_data_type;
+  clock_t load_ms, operation_ms;
+  enum mop_errno_t error = perform_cli_action(operation, sm_multiple, input_file_1, input_file_2, n_threads, &load_ms, &operation_ms, &csr_matrix_constructor, &matrix_result, &value_result, &result_data_type);
+
+  if (error != mop_errno_ok) {
+    printf("Error performing operation (error no: %d)", error);
+    exit(1);
+  }
+
+  char* filename = write_log_file(
+    log ? NULL : stdout,
+    log ? 0 : 50,
+    "21471423",
+    operation,
+    input_file_1,
+    input_file_2,
+    n_threads,
+    load_ms,
+    operation_ms,
+    result_data_type,
+    matrix_result == NULL ? -1 : matrix_result->width,
+    matrix_result == NULL ? -1 : matrix_result->height,
+    value_result,
+    matrix_result,
+    &csr_matrix_get_row
+  );
+
+  if (log != NULL) {
+    printf("Wrote log file %s", filename);
+  }
+ 
+  free(filename);
+  csr_matrix_free(&matrix_result);
+  free(operation);
+  free(input_file_1);
+  if (input_file_2 != NULL) {
+    free(input_file_2);
+  }
+
   return 0;
 }
 

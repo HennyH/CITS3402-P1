@@ -256,6 +256,7 @@ END_TEST
 
 START_TEST(matrix_op_mul_mixed_square_matrix)
 {
+  char result_data_type;
   char left_m_data_type, right_m_data_type;
   int left_m_n_cols, left_m_n_rows, right_m_n_cols, right_m_n_rows;
   void* left_m_values = read_file("./inputs/int_4x4.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
@@ -267,7 +268,8 @@ START_TEST(matrix_op_mul_mixed_square_matrix)
     left_m_data_type, left_m_n_cols, left_m_n_rows, left_m, &csr_matrix_get_row,
     right_m_data_type, right_m_n_cols, right_m_n_rows, right_m, &csc_matrix_get_col,
     &coo_matrix_constructor,
-    &result
+    &result,
+    &result_data_type
   );
   ck_assert_int_eq(error, mop_errno_ok);
   /* the result of <identity> * <m> should just be <m> */
@@ -296,6 +298,7 @@ END_TEST
 
 START_TEST(matrix_op_mul_int_rectangular)
 {
+  char result_data_type;
   char left_m_data_type, right_m_data_type;
   int left_m_n_cols, left_m_n_rows, right_m_n_cols, right_m_n_rows;
   void* left_m_values = read_file("./inputs/int_2x3.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
@@ -307,7 +310,8 @@ START_TEST(matrix_op_mul_int_rectangular)
     left_m_data_type, left_m_n_cols, left_m_n_rows, left_m, &csr_matrix_get_row,
     right_m_data_type, right_m_n_cols, right_m_n_rows, right_m, &csc_matrix_get_col,
     &coo_matrix_constructor,
-    &result
+    &result,
+    &result_data_type
   );
   ck_assert_int_eq(error, mop_errno_ok);
   /* the result of <identity> * <m> should just be <m> */
@@ -336,6 +340,7 @@ END_TEST
 
 START_TEST(matrix_op_mul_invalid_dimensions)
 {
+  char result_data_type;
   char left_m_data_type, right_m_data_type;
   int left_m_n_cols, left_m_n_rows, right_m_n_cols, right_m_n_rows;
   void* left_m_values = read_file("./inputs/int_4x4.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
@@ -347,7 +352,8 @@ START_TEST(matrix_op_mul_invalid_dimensions)
     left_m_data_type, left_m_n_cols, left_m_n_rows, left_m, &csr_matrix_get_row,
     right_m_data_type, right_m_n_cols, right_m_n_rows, right_m, &csc_matrix_get_col,
     &coo_matrix_constructor,
-    &result
+    &result,
+    &result_data_type
   );
   ck_assert_int_eq(error, mop_errno_dimension_incompatible);
 }
@@ -355,6 +361,7 @@ END_TEST
 
 START_TEST(matrix_op_add_mixed_square)
 {
+  char result_data_type;
   char left_m_data_type, right_m_data_type;
   int left_m_n_cols, left_m_n_rows, right_m_n_cols, right_m_n_rows;
   void* left_m_values = read_file("./inputs/int_4x4.in", &left_m_data_type, &left_m_n_rows, &left_m_n_cols);
@@ -366,7 +373,8 @@ START_TEST(matrix_op_add_mixed_square)
     left_m_data_type, left_m_n_cols, left_m_n_rows, left_m, &csc_matrix_get_col,
     right_m_data_type, right_m_n_cols, right_m_n_rows, right_m, &csc_matrix_get_col,
     &coo_matrix_constructor,
-    &result
+    &result,
+    &result_data_type
   );
   ck_assert_int_eq(error, mop_errno_ok);
   /* the result of <identity> * <m> should just be <m> */
@@ -400,11 +408,12 @@ END_TEST
 START_TEST(matrix_op_transpose_int_square)
 {
   char data_type;
+  char result_data_type;
   int n_cols, n_rows;
   void* values = read_file("./inputs/int_2x2.in", &data_type, &n_rows, &n_cols);
   struct csc_matrix* m = csc_matrix_constructor(data_type, n_cols, n_rows, values);
   struct coo_matrix* m_transposed;
-  enum mop_errno_t error = matrix_transpose(data_type, n_cols, n_rows, m, &csc_matrix_get_col, NULL, &coo_matrix_constructor, &m_transposed);
+  enum mop_errno_t error = matrix_transpose(data_type, n_cols, n_rows, m, &csc_matrix_get_col, NULL, &coo_matrix_constructor, &m_transposed, &result_data_type);
   ck_assert_int_eq(error, mop_errno_ok);
   ck_assert_int_eq(m_transposed->width, 2);
   ck_assert_int_eq(m_transposed->height, 2);
@@ -431,12 +440,13 @@ END_TEST
 
 START_TEST(matrix_op_transpose_float_rectangluar)
 {
+  char result_data_type;
   char data_type;
   int n_cols, n_rows;
   void* values = read_file("./inputs/float_1x5.in", &data_type, &n_rows, &n_cols);
   struct csr_matrix* m = csr_matrix_constructor(data_type, n_cols, n_rows, values);
   struct coo_matrix* m_transposed;
-  enum mop_errno_t error = matrix_transpose(data_type, n_cols, n_rows, m, NULL, &csr_matrix_get_row, &coo_matrix_constructor, &m_transposed);
+  enum mop_errno_t error = matrix_transpose(data_type, n_cols, n_rows, m, NULL, &csr_matrix_get_row, &coo_matrix_constructor, &m_transposed, &result_data_type);
   ck_assert_int_eq(error, mop_errno_ok);
   ck_assert_int_eq(m_transposed->width, 1);
   ck_assert_int_eq(m_transposed->height, 5);

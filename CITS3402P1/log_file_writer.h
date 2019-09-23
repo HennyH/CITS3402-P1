@@ -1,3 +1,3 @@
 #pragma once
 
-char* log_file_write_matrix(char* student_number, char* operation, char* input_filename_1, char* maybe_input_filename_2, int n_threads, int ms_elapsed, char data_type, int width, int height, void* matrix, matrix_get_row get_row);
+char* write_log_file(FILE* maybe_file, int value_limit, char* student_number, char* operation, char* input_filename_1, char* maybe_input_filename_2, int n_threads, int load_time, int calc_time, char data_type, int width, int height, union matrix_value value, void* matrix, matrix_get_row get_row);
