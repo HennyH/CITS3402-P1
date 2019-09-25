@@ -82,7 +82,7 @@ enum mop_errno_t perform_cli_action(char* operation, double sm_multiple, char* i
 
     load_finish = clock();
     mop_errno = matrix_scalar_multiply(m_data_type, sm_multiple, m, constructor, matrix_result, result_data_type, &operation_duration);
-    csc_matrix_free(&m);
+    coo_matrix_free(&m);
   }
   else if (strcmp("tr", operation) == 0) {
     char m_data_type;
@@ -101,12 +101,12 @@ enum mop_errno_t perform_cli_action(char* operation, double sm_multiple, char* i
     int m_rows, m_cols;
 
     union matrix_value* m_values = read_file(input_file_1, &m_data_type, &m_rows, &m_cols);
-    struct csc_matrix* m = csc_matrix_constructor(m_data_type, m_cols, m_rows, m_values);
+    struct coo_matrix* m = coo_matrix_constructor(m_data_type, m_cols, m_rows, m_values);
     free(m_values);
 
     load_finish = clock();
-    mop_errno = matrix_transpose(m_data_type, m_cols, m_rows, m, &csc_matrix_get_col, NULL, constructor, matrix_result, result_data_type, &operation_duration);
-    csc_matrix_free(&m);
+    mop_errno = matrix_transpose(m_data_type, m, constructor, matrix_result, result_data_type, &operation_duration);
+    coo_matrix_free(&m);
   }
   else {
     char left_m_data_type, right_m_data_type;

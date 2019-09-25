@@ -18,7 +18,7 @@ enum mop_errno_t matrix_scalar_multiply(char data_type, double a,  struct coo_ma
 
   clock_t start = clock();
 
-  int triple_i;
+  int triple_i = 0;
 #pragma omp parallel for shared(n_triples, result_values) private(triple_i)
   for (triple_i = 0; triple_i < n_triples; triple_i++)
   {
@@ -71,46 +71,23 @@ enum mop_errno_t matrix_trace(char data_type, struct coo_matrix* coo_matrix, uni
   return mop_errno_ok;
 }
 
-enum mop_errno_t matrix_transpose(char data_type, int width, int height, void* matrix, matrix_get_col get_col, matrix_get_row get_row, matrix_constructor constructor, void** result_matrix, char* result_data_type, clock_t* elapsed) {
-  if (get_col == NULL && get_row == NULL) {
-    printf("Transpose requires either `get_col` or `get_row` to be provided.");
-    return mop_errno_argument_invalid;
-  }
-
+enum mop_errno_t matrix_transpose(char data_type, struct coo_matrix* matrix, matrix_constructor constructor, void** result_matrix, char* result_data_type, clock_t* elapsed) {
+  const int width = matrix->width;
+  const int height = matrix->height;
+  const int n_triples = matrix->n_triples;
   union matrix_value* result_values = (union matrix_value*)calloc(width * height, sizeof(union matrix_value));
 
   clock_t start = clock();
 
-  /* What's going on here is that we allow the user to provide either a method of providing ROWS xor COLUMNS.
-   * depending on what they give we will either transpose the matrix via changing rows->columns xor columns->rows.
-   * We allow this to improve memory access patterns on matrices that are significantly wider or taller than they are tall or wide
-   * respectivley.
-   */
-  const bool is_columnwise = get_col != NULL;
-  /* we use a/b in the loops to try avoid any confusion that i/j (which associate with horizontal/vertical) might bring. */
-  const int a_max = is_columnwise ? width : height; /* if going columnwise the outer loop is over the columns */
-  const int b_max = is_columnwise ? height : width; /* if going columnwise the inner loop is over the row values of a column */
-  for (int a = 0; a < a_max; a++) {
-    union matrix_value* column_or_row_values;
-#pragma omp parallel shared(a_max, b_max, column_or_row_values, result_values)
-    {
-#pragma omp single
-      {
-        column_or_row_values = is_columnwise ? get_col(a, matrix) : get_row(a, matrix);
-      }
-      int b;
-#pragma omp for
-      for (b = 0; b < b_max; b++) {
-        /* if we are going columnwise the 'row' of the input value is `b` (the column is `a` the outer loop), but since we are transposing
-         * and that means swapping rows->columns/colums->rows we use `a`. */
-        const int dest_row_i = is_columnwise ? a : b;
-        /* this follows similar logic to the line above. */
-        const int dest_col_i = is_columnwise ? b : a;
-        /* note that we make sure to swap the height/width parameters because we're putting it into the transposed matrix! */
-        set_ltr_ttb_value(dest_row_i, dest_col_i, height, width, column_or_row_values[b], result_values);
-      }
-    }
+  int triple_i = 0;
+#pragma omp parallel for shared(n_triples, result_values) private(triple_i)
+  for (triple_i = 0; triple_i < n_triples; triple_i++)
+  {
+    struct coo_triple triple = coo_matrix_get_triple(matrix, triple_i);
+    /* note we swapped the row/col and width/height arguments here! This is what it _means_ to transpose the matrix! */
+    set_ltr_ttb_value(triple.col_i, triple.row_i, height, width, triple.value, result_values);
   }
+
 
   clock_t end = clock();
   *elapsed = end - start;
