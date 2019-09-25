@@ -25,12 +25,6 @@ int main(int argc, char *argv[], char** envp)
 
   parse_cli_args(argc, argv, envp, &operation, &sm_multiple, &input_file_1, &input_file_2, &n_threads, &log);
 
-  if (n_threads != 0) {
-    char n_threads_str[5];
-    sprintf_s(n_threads_str, _countof(n_threads_str), "%d", n_threads);
-    _putenv_s("OMP_NUM_THREADS", n_threads_str);
-  }
-
   struct csr_matrix* matrix_result = NULL;
   union matrix_value value_result;
   char result_data_type;
@@ -65,7 +59,9 @@ int main(int argc, char *argv[], char** envp)
   }
  
   free(filename);
-  csr_matrix_free(&matrix_result);
+  if (matrix_result != NULL) {
+    csr_matrix_free(&matrix_result);
+  }
   free(operation);
   free(input_file_1);
   if (input_file_2 != NULL) {

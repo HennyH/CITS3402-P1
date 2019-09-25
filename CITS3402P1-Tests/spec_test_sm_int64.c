@@ -37,8 +37,6 @@ START_TEST(spec_test_sm_int64)
         double load_seconds, operation_seconds;
         enum mop_errno_t error = perform_cli_action(operation, sm_multiple, input_file_1, input_file_2, n_threads, &load_seconds, &operation_seconds, &coo_matrix_constructor, &matrix_result, &value_result, &result_data_type);
     
-
-        
         ck_assert_int_eq(coo_matrix_get_triple(matrix_result, 372).col_i, 40);
         ck_assert_int_eq(coo_matrix_get_triple(matrix_result, 372).row_i, 57);
         ck_assert_double_eq_tol(coo_matrix_get_triple(matrix_result, 372).value.d, 478.0, 1e-6);

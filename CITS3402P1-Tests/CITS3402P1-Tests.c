@@ -678,10 +678,10 @@ int main(void)
   tcase_add_test(spec_test_case, spec_test_ts_int256);
 
   Suite* project_test_suite = suite_create("Project Test Suite");
-  /*suite_add_tcase(project_test_suite, matrix_constructors_test_case);
+  suite_add_tcase(project_test_suite, matrix_constructors_test_case);
   suite_add_tcase(project_test_suite, file_reader_test_case);
   suite_add_tcase(project_test_suite, matrix_ops_test_case);
-  suite_add_tcase(project_test_suite, cli_parser_test_case);*/
+  suite_add_tcase(project_test_suite, cli_parser_test_case);
   suite_add_tcase(project_test_suite, spec_test_case);
 
   SRunner* runner = srunner_create(project_test_suite);

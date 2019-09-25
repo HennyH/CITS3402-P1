@@ -4,3 +4,7 @@
 **/*.vcxproj.user
 **/Release
 **/x64
+.ionide
+.vscode
+__pycache__
+env
