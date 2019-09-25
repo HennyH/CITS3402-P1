@@ -3,11 +3,13 @@ import math
 from operator import itemgetter
 from itertools import groupby
 import matplotlib.pyplot as plt
-plt.rcParams["figure.figsize"] = (8.2, 11.6)
+plt.rcParams["figure.figsize"] = (8.2, 10)
 
 from perf_test import operations, thread_numbers, input_sizes
 
-with open("results2.csv", "r", newline="") as csv_fileobj:
+VERSION = "v1"
+
+with open(f"./{VERSION}-stats/{VERSION}-results.csv", "r", newline="") as csv_fileobj:
     reader = csv.reader(csv_fileobj)
     next(reader)
     rows = list(reader)
@@ -36,4 +38,4 @@ if __name__ == "__main__":
         for input_size in input_sizes:
             plt_op_hist(dim, dim, operation, input_size, plot_index)
             plot_index += 1
-        plt.savefig(f"{operation}.png", quality=100, papertype="a4", orientation="landscape")
+        plt.savefig(f"./{VERSION}-stats/{operation}.png", quality=100, papertype="a4", orientation="landscape")

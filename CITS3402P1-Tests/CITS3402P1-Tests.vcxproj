@@ -215,24 +215,60 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="inputs\float1.in" />
-    <None Include="inputs\float1024.in" />
-    <None Include="inputs\float128.in" />
-    <None Include="inputs\float2.in" />
-    <None Include="inputs\float256.in" />
-    <None Include="inputs\float64.in" />
-    <None Include="inputs\float_1x5.in" />
-    <None Include="inputs\float_4x4.in" />
-    <None Include="inputs\int1.in" />
-    <None Include="inputs\int1024.in" />
-    <None Include="inputs\int128.in" />
-    <None Include="inputs\int2.in" />
-    <None Include="inputs\int256.in" />
-    <None Include="inputs\int64.in" />
-    <None Include="inputs\int_2x2.in" />
-    <None Include="inputs\int_2x3.in" />
-    <None Include="inputs\int_3x2.in" />
-    <None Include="inputs\int_4x4.in" />
+    <None Include="inputs\float1.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\float1024.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\float128.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\float2.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\float256.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\float64.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\float_1x5.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\float_4x4.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\int1.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\int1024.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\int128.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\int2.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\int256.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\int64.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\int_2x2.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\int_2x3.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\int_3x2.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="inputs\int_4x4.in">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CITS3402P1\cli_parser.h" />
