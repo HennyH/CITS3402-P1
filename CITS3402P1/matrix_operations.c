@@ -9,26 +9,22 @@
 #include "csc_matrix.h"
 #include "matrix_operations.h"
 
-enum mop_errno_t matrix_scalar_multiply(char data_type, double a, void* matrix, int width, int height, matrix_get_col get_col, matrix_constructor constructor, void** result_matrix, char* result_data_type, clock_t* elapsed)
+enum mop_errno_t matrix_scalar_multiply(char data_type, double a,  struct coo_matrix* matrix, matrix_constructor constructor, void** result_matrix, char* result_data_type, clock_t* elapsed)
 {
+  const int width = matrix->width;
+  const int height = matrix->height;
+  const int n_triples = matrix->n_triples;
   union matrix_value* result_values = (union matrix_value*)calloc(width * height, sizeof(union matrix_value));
 
   clock_t start = clock();
 
-  for (int col_i = 0; col_i < width; col_i++)
+  int triple_i;
+#pragma omp parallel for shared(n_triples, result_values) private(triple_i)
+  for (triple_i = 0; triple_i < n_triples; triple_i++)
   {
-    union matrix_value* column;
-#pragma omp parallel shared(column, width, height, result_values)
-    {
-#pragma omp single
-      column = get_col(col_i, matrix);
-      int row_i = 0;
-#pragma omp for
-      for (row_i = 0; row_i < height; row_i++) {
-        union matrix_value cell_value = { .d = a * (data_type == DATA_TYPE_INTEGER ? (double)column[row_i].i : column[row_i].d) };
-        set_ltr_ttb_value(row_i, col_i, width, height, cell_value, result_values);
-      }
-    }
+    struct coo_triple triple = coo_matrix_get_triple(matrix, triple_i);
+    union matrix_value cell_value = { .d = a * (data_type == DATA_TYPE_INTEGER ? (double)triple.value.i : triple.value.d) };
+    set_ltr_ttb_value(triple.row_i, triple.col_i, width, height, cell_value, result_values);
   }
 
   clock_t end = clock();
